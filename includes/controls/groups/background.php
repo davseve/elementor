@@ -474,8 +474,8 @@ class Group_Control_Background extends Group_Control_Base {
 			],
 		];
 
-		$fields['size'] = [
-			'label' => _x( 'Size', 'Background Control', 'elementor' ),
+		$fields['dimensions'] = [
+			'label' => _x( 'Dimensions', 'Background Control', 'elementor' ),
 			'type' => Controls_Manager::SELECT,
 			'responsive' => true,
 			'default' => '',
@@ -525,7 +525,7 @@ class Group_Control_Background extends Group_Control_Base {
 			],
 			'condition' => [
 				'background' => [ 'classic' ],
-				'size' => [ 'initial' ],
+				'dimensions' => [ 'initial' ],
 				'image[url]!' => '',
 			],
 			'device_args' => [
@@ -777,9 +777,13 @@ class Group_Control_Background extends Group_Control_Base {
 			'frontend_available' => true,
 		];
 
-		$fields['dimension'] = [
+		$fields['image_size'] = [
 			'label' => _x( 'Image Size', 'Image Size Control', 'elementor' ),
 			'type' => Controls_Manager::SELECT,
+			'condition' => [
+				'background' => [ 'classic' ],
+				'image[url]!' => '',
+			],
 		];
 
 
@@ -801,6 +805,8 @@ class Group_Control_Background extends Group_Control_Base {
 		return [
 			'types' => [ 'classic', 'gradient' ],
 			'selector' => '{{WRAPPER}}:not(.elementor-motion-effects-element-type-background), {{WRAPPER}} > .elementor-motion-effects-container > .elementor-motion-effects-layer',
+			'include' => [],
+			'exclude' => [],
 		];
 	}
 
@@ -856,7 +862,7 @@ class Group_Control_Background extends Group_Control_Base {
 
 		$fields['background']['options'] = $choose_types;
 
-		self::prepare_dimension_fields( $fields, $args );
+		$fields = self::prepare_image_size_options( $fields, $args );
 
 		return parent::prepare_fields( $fields );
 	}
@@ -929,14 +935,10 @@ class Group_Control_Background extends Group_Control_Base {
 
 		$image_sizes['full'] = _x( 'Full', 'Image Size Control', 'elementor' );
 
-		if ( ! empty( $args['include']['custom'] ) || ! in_array( 'custom', $args['exclude'] ) ) {
-			$image_sizes['custom'] = _x( 'Custom', 'Image Size Control', 'elementor' );
-		}
-
 		return $image_sizes;
 	}
 
-	protected function prepare_dimension_fields( $fields, $args ) {
+	protected function prepare_image_size_options( $fields, $args ) {
 		$image_sizes = $this->get_image_sizes();
 
 		if ( ! empty(  ['default'] ) && isset( $image_sizes[ $args['default'] ] ) ) {
@@ -946,9 +948,11 @@ class Group_Control_Background extends Group_Control_Base {
 			$default_value = array_keys( $image_sizes );
 			$default_value = array_shift( $default_value );
 		}
-		$fields['dimension']['options'] = $image_sizes;
+		$fields['image_size']['options'] = $image_sizes;
 
-		$fields['dimension']['default'] = $default_value;
+		$fields['image_size']['default'] = $default_value;
+
+		return $fields;
 	}
 
 	/**
