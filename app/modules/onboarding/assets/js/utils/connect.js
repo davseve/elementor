@@ -1,5 +1,6 @@
 import { useEffect, useContext } from 'react';
 import { OnboardingContext } from '../context/context';
+import accountService from 'elementor/app/modules/services/account-service/account-service';
 
 export default function Connect( props ) {
 	const { state, updateState, getStateObjectToUpdate } = useContext( OnboardingContext );
@@ -14,20 +15,21 @@ export default function Connect( props ) {
 
 		updateState( stateToUpdate );
 	};
+	const bridge = new accountService();
 
-	useEffect( () => {
-		jQuery( props.buttonRef.current ).elementorConnect( {
-			success: ( data ) => props.successCallback ? props.successCallback( data ) : connectSuccessCallback( data ),
-			error: () => {
-				if ( props.errorCallback ) {
-					props.errorCallback();
-				}
-			},
-			popup: {
+	useEffect( async () => {
+		const successCallback = ( data ) => props.successCallback ? props.successCallback( data ) : connectSuccessCallback( data );
+		const errorCallback = () => {
+						if ( props.errorCallback ) {
+							props.errorCallback();
+						}
+					};
+		const parseUrl = ( url ) => url;
+		const popup = { popup: {
 				width: 726,
 				height: 534,
-			},
-		} );
+			} };
+		await bridge.authenticate( props.buttonRef.current, successCallback, errorCallback, parseUrl, popup );
 	}, [] );
 
 	return null;

@@ -1,18 +1,18 @@
 import { Dialog } from '@elementor/app-ui';
 import { useSettingsContext } from '../context/settings-context';
-
+import accountService from 'elementor/app/modules/services/account-service/account-service';
 const { useEffect, useRef } = React;
 
 export default function ConnectDialog( props ) {
 	const { settings } = useSettingsContext();
 	const approveButtonRef = useRef();
+	const bridge = new accountService();
 
-	useEffect( () => {
-		jQuery( approveButtonRef.current ).elementorConnect( {
-			success: ( e, data ) => props.onSuccess( data ),
-			error: () => props.onError( __( 'Unable to connect', 'elementor' ) ),
-			parseUrl: ( url ) => url.replace( '%%page%%', props.pageId ),
-		} );
+	useEffect( async () => {
+		const success = ( e, data ) => props.onSuccess( data );
+		const error = () => props.onError( __( 'Unable to connect', 'elementor' ) );
+		const parseUrl = ( url ) => url.replace( '%%page%%', props.pageId );
+		await bridge.authenticate( approveButtonRef.current, success, error, parseUrl );
 	}, [] );
 
 	return (

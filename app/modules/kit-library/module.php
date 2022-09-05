@@ -9,6 +9,7 @@ use Elementor\App\Modules\KitLibrary\Connect\Kit_Library;
 use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;
 use Elementor\App\Modules\KitLibrary\Data\Kits\Controller as Kits_Controller;
 use Elementor\App\Modules\KitLibrary\Data\Taxonomies\Controller as Taxonomies_Controller;
+use Elementor\App\Modules\Services\Account_Service\Service as Account_Service;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -54,22 +55,24 @@ class Module extends BaseModule {
 		}
 
 		/** @var ConnectModule $connect */
-		$connect = Plugin::$instance->common->get_component( 'connect' );
+		$account_service = new Account_Service( 'kit-library' );
 
-		/** @var Kit_Library $kit_library */
-		$kit_library = $connect->get_app( 'kit-library' );
+		$get_subscription_plans = $account_service->get_subscription_plans( $this->get_name() );
+		$is_connected = $account_service->is_connected();
+		$get_admin_url = $account_service->get_admin_url( 'authorize', [
+			'utm_source' => 'kit-library',
+			'utm_medium' => 'wp-dash',
+			'utm_campaign' => 'library-connect',
+			'utm_term' => '%%page%%', // Will be replaced in the frontend.
+		] );
 
 		Plugin::$instance->app->set_settings( 'kit-library', [
 			'has_access_to_module' => current_user_can( 'administrator' ),
-			'subscription_plans' => $connect->get_subscription_plans( 'kit-library' ),
+
+			'subscription_plans' => $get_subscription_plans,
 			'is_pro' => false,
-			'is_library_connected' => $kit_library->is_connected(),
-			'library_connect_url'  => $kit_library->get_admin_url( 'authorize', [
-				'utm_source' => 'kit-library',
-				'utm_medium' => 'wp-dash',
-				'utm_campaign' => 'library-connect',
-				'utm_term' => '%%page%%', // Will be replaced in the frontend.
-			] ),
+			'is_library_connected' => $is_connected,
+			'library_connect_url'  => $get_admin_url,
 			'access_level' => ConnectModule::ACCESS_LEVEL_CORE,
 		] );
 	}
