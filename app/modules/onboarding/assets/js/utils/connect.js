@@ -18,18 +18,30 @@ export default function Connect( props ) {
 	const bridge = new accountService();
 
 	useEffect( async () => {
-		const successCallback = ( data ) => props.successCallback ? props.successCallback( data ) : connectSuccessCallback( data );
-		const errorCallback = () => {
-						if ( props.errorCallback ) {
-							props.errorCallback();
-						}
-					};
+		// const successCallback = ( data ) => props.successCallback ? props.successCallback( data ) : connectSuccessCallback( data );
+		// const errorCallback = () => {
+		// 				if ( props.errorCallback ) {
+		// 					props.errorCallback();
+		// 				}
+		// 			};
 		const parseUrl = ( url ) => url;
-		const popup = { popup: {
-				width: 726,
-				height: 534,
-			} };
-		await bridge.authenticate( props.buttonRef.current, successCallback, errorCallback, parseUrl, popup );
+		// await bridge.authenticate( props.buttonRef.current, parseUrl, sizes );
+
+		const { data, error } = await bridge.authenticate( props.buttonRef.current, parseUrl, {
+			width: 726,
+			height: 534,
+		} );
+		if ( error && props.errorCallback ) {
+			props.errorCallback();
+		}
+
+		if ( data ) {
+			if ( props.successCallback ) {
+				props.successCallback( data )
+			} else {
+				connectSuccessCallback( data )
+			}
+		}
 	}, [] );
 
 	return null;

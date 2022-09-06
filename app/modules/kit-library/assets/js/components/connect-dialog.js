@@ -9,10 +9,14 @@ export default function ConnectDialog( props ) {
 	const bridge = new accountService();
 
 	useEffect( async () => {
-		const success = ( e, data ) => props.onSuccess( data );
-		const error = () => props.onError( __( 'Unable to connect', 'elementor' ) );
 		const parseUrl = ( url ) => url.replace( '%%page%%', props.pageId );
-		await bridge.authenticate( approveButtonRef.current, success, error, parseUrl );
+		const { data, error } = await bridge.authenticate( approveButtonRef.current, parseUrl );
+		if ( error ) {
+			props.onError( __( 'Unable to connect', 'elementor' ) );
+		}
+		if ( data ) {
+			props.onSuccess( data );
+		}
 	}, [] );
 
 	return (
