@@ -1,17 +1,17 @@
 import BarButton from '../bar-button/bar-button';
 import { useRef, useEffect } from 'react';
-import accountService from "elementor/app/modules/services/account-service/account-service";
+import AccountService from 'elementor/app/modules/services/account-service/account-service';
 
 export default function ConnectionButton() {
 	const buttonRef = useRef();
 	const isUserConnected = elementorAdminTopBarConfig.is_user_connected;
-	const bridge = new accountService();
+	const accountService = new AccountService();
 
 	useEffect( () => {
 		if ( ! buttonRef.current || isUserConnected ) {
 			return;
 		}
-		bridge.authenticate( buttonRef.current );
+		accountService.auth( buttonRef.current );
 		// jQuery( buttonRef.current ).elementorConnect();
 	}, [] );
 

@@ -1,8 +1,8 @@
-export default class accountService {
-	authenticate( buttonRef, parseUrl, sizes ) {
+export default class AccountService {
+	auth( buttonRef, parseUrl, sizes ) {
 		return new Promise( ( resolve, reject ) => {
-			const success = ( data ) => {
-				resolve( { data, error: null } )
+			const success = ( e, data ) => {
+				resolve( { e, data, error: null } )
 			};
 
 			const error = () => {
