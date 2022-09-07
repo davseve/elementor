@@ -10,7 +10,7 @@ export default function ConnectDialog( props ) {
 
 	useEffect( async () => {
 		const parseUrl = ( url ) => url.replace( '%%page%%', props.pageId );
-		const { e, data, error } = await accountService.auth( approveButtonRef.current, parseUrl );
+		const { data, error } = await accountService.auth( approveButtonRef.current, parseUrl );
 		if ( error ) {
 			props.onError( __( 'Unable to connect', 'elementor' ) );
 		}

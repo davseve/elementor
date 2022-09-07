@@ -1,20 +1,32 @@
 export default class AccountService {
+	/**
+	 * Wrapps elementorConnect with a promise function.
+	 *
+	 * @param buttonRef
+	 * @param parseUrl
+	 * @param sizes
+	 * @returns {Promise}
+	 */
 	auth( buttonRef, parseUrl, sizes ) {
 		return new Promise( ( resolve, reject ) => {
-			const success = ( e, data ) => {
-				resolve( { e, data, error: null } )
-			};
+			// setTimeout( () => {
+			// 	resolve( { data: 'dav' } )
+			// }, 100 );
 
-			const error = () => {
-				resolve( { data: null, error: 'Error' } )
-			};
+				const success = ( e, data ) => {
+					resolve( { data, error: null } );
+				};
 
-			jQuery( buttonRef ).elementorConnect( {
-				success,
-				error,
-				parseUrl,
-				popup: sizes,
-			} );
+				const error = () => {
+					resolve( { data: null, error: 'Error' } );
+				};
+
+				jQuery( buttonRef ).elementorConnect( {
+					success,
+					error,
+					parseUrl,
+					popup: sizes,
+				} );
 		} );
 	}
 }
