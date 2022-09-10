@@ -9,7 +9,7 @@ use Elementor\App\Modules\KitLibrary\Connect\Kit_Library;
 use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;
 use Elementor\App\Modules\KitLibrary\Data\Kits\Controller as Kits_Controller;
 use Elementor\App\Modules\KitLibrary\Data\Taxonomies\Controller as Taxonomies_Controller;
-use Elementor\App\Modules\Services\Account_Service\Service as Account_Service;
+use Elementor\App\Services\Account\Account_Service;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly

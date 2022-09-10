@@ -1,6 +1,6 @@
 import BarButton from '../bar-button/bar-button';
 import { useRef, useEffect } from 'react';
-import AccountService from 'elementor/app/modules/services/account-service/account-service';
+import AccountService from 'elementor/app/services/account-service/account-service';
 
 export default function ConnectionButton() {
 	const buttonRef = useRef();

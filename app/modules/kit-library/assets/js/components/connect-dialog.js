@@ -1,14 +1,14 @@
 import { Dialog } from '@elementor/app-ui';
 import { useSettingsContext } from '../context/settings-context';
-import AccountService from 'elementor/app/modules/services/account-service/account-service';
+import AccountService from 'elementor/app/services/account/account-service';
 const { useEffect, useRef } = React;
 
 export default function ConnectDialog( props ) {
 	const { settings } = useSettingsContext();
 	const approveButtonRef = useRef();
-	const accountService = new AccountService();
 
 	useEffect( async () => {
+		const accountService = new AccountService();
 		const parseUrl = ( url ) => url.replace( '%%page%%', props.pageId );
 		const { data, error } = await accountService.auth( approveButtonRef.current, parseUrl );
 		if ( error ) {

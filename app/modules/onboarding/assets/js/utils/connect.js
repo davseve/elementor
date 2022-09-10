@@ -1,6 +1,6 @@
 import { useEffect, useContext } from 'react';
 import { OnboardingContext } from '../context/context';
-import AccountService from 'elementor/app/modules/services/account-service/account-service';
+import AccountService from 'elementor/app/services/account/account-service';
 
 export default function Connect( props ) {
 	const { state, updateState, getStateObjectToUpdate } = useContext( OnboardingContext );

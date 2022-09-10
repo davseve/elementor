@@ -9,7 +9,7 @@ use Elementor\Core\Files\Uploads_Manager;
 use Elementor\Plugin;
 use Elementor\Tracker;
 use Plugin_Upgrader;
-use Elementor\App\Modules\Services\Account_Service\Service as Account_Service;
+use Elementor\App\Services\Account\Account_Service;
 
 
 if ( ! defined( 'ABSPATH' ) ) {

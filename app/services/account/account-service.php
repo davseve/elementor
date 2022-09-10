@@ -1,12 +1,11 @@
 <?php
-namespace Elementor\App\Modules\Services\Account_Service;
+namespace Elementor\App\Services\Account;
 
 use Elementor\Plugin;
+use Elementor\App\Services\Base_service;
 
-class Service {
+class Account_Service extends Base_service {
 
-	public $connect;
-	public $connected_app;
 	/**
 	 * Get name.
 	 *
@@ -31,7 +30,8 @@ class Service {
 	}
 
 	public function __construct( $connected_app = 'library' ) {
-		$this->connected_app = $connected_app;
-		$this->connect = Plugin::$instance->common->get_component( 'connect' )->get_app( $this->connected_app );
+		parent::__construct( $connected_app );
+//		$this->connected_app = $connected_app;
+//		$this->connect = Plugin::$instance->common->get_component( 'connect' )->get_app( $this->connected_app );
 	}
 }
