@@ -1,6 +1,8 @@
 <?php
 namespace Elementor\App;
 
+use Elementor\App\Services\Account\Account_Service;
+use Elementor\App\Services\Base_Service;
 use Elementor\Icons_Manager;
 use Elementor\Modules\WebCli\Module as WebCLIModule;
 use Elementor\Core\Base\App as BaseApp;
@@ -16,7 +18,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class App extends BaseApp {
 
 	const PAGE_ID = 'elementor-app';
-
+	private $services = [];
 	/**
 	 * Get module name.
 	 *
@@ -246,7 +248,33 @@ class App extends BaseApp {
 		$this->print_config( 'elementor-app-loader' );
 	}
 
+//	public function service( $service_name ) {
+//		return $this->services[ $service_name ];
+//	}
+//
+//	private function register_service( Base_Service $service ) {
+//		$this->services[ $service->get_name() ] = $service;
+//	}
+//
+//	private function resister_services() {
+//		$this->register_service( new Account_Service() );
+//	}
+//
+//	private function init_services() {
+//		if ( empty( $this->services ) ) {
+//			throw new \Exception( 'No services found' );
+//		}
+//
+//		foreach ( $this->services as $service ) {
+//			$service->init();
+//		}
+//	}
+
 	public function __construct() {
+//		add_action( 'elementor/init', function () {
+//			$this->resister_services();
+//			$this->init_services();
+//		} );
 
 		$this->add_component( 'site-editor', new Modules\SiteEditor\Module() );
 

@@ -17,9 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Module extends BaseModule {
 	/**
+	 * @var mixed
+	 */
+	private $account_service;
+
+	/**
 	 * Get name.
 	 *
-	 * @access public
+	 * @access private
 	 *
 	 * @return string
 	 */
@@ -53,26 +58,29 @@ class Module extends BaseModule {
 		if ( ! Plugin::$instance->common ) {
 			return;
 		}
+//		$connect = Plugin::$instance->common->get_component( 'connect' );
+//
+//		$get_subscription_plans = $this->account_service->get_subscription_plans( $this->get_name() );
+//		$is_connected = $this->account_service->is_connected();
+//		$get_admin_url = $this->account_service->get_admin_url( 'authorize', [
 
 		/** @var ConnectModule $connect */
-		$account_service = new Account_Service( 'kit-library' );
+		$connect = Plugin::$instance->common->get_component( 'connect' );
 
-		$get_subscription_plans = $account_service->get_subscription_plans( $this->get_name() );
-		$is_connected = $account_service->is_connected();
-		$get_admin_url = $account_service->get_admin_url( 'authorize', [
-			'utm_source' => 'kit-library',
-			'utm_medium' => 'wp-dash',
-			'utm_campaign' => 'library-connect',
-			'utm_term' => '%%page%%', // Will be replaced in the frontend.
-		] );
+		/** @var Kit_Library $kit_library */
+		$kit_library = $connect->get_app( 'kit-library' );
 
 		Plugin::$instance->app->set_settings( 'kit-library', [
 			'has_access_to_module' => current_user_can( 'administrator' ),
-
-			'subscription_plans' => $get_subscription_plans,
+			'subscription_plans' => $connect->get_subscription_plans( 'kit-library' ),
 			'is_pro' => false,
-			'is_library_connected' => $is_connected,
-			'library_connect_url'  => $get_admin_url,
+			'is_library_connected' => $kit_library->is_connected(),
+			'library_connect_url'  => $kit_library->get_admin_url( 'authorize', [
+				'utm_source' => 'kit-library',
+				'utm_medium' => 'wp-dash',
+				'utm_campaign' => 'library-connect',
+				'utm_term' => '%%page%%', // Will be replaced in the frontend.
+			] ),
 			'access_level' => ConnectModule::ACCESS_LEVEL_CORE,
 		] );
 	}

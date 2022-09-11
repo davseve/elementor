@@ -68,7 +68,6 @@ class Module extends BaseModule {
 		$hello_theme = wp_get_theme( 'hello-elementor' );
 		$hello_theme_errors = is_object( $hello_theme->errors() ) ? $hello_theme->errors()->errors : [];
 
-		$account_service = new Account_Service();
 		/** @var Library $library */
 		$library = Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' );
 
@@ -76,7 +75,7 @@ class Module extends BaseModule {
 			'eventPlacement' => 'Onboarding wizard',
 			'onboardingAlreadyRan' => get_option( self::ONBOARDING_OPTION ),
 			'onboardingVersion' => self::VERSION,
-			'isLibraryConnected' => $account_service->is_connected(),
+			'isLibraryConnected' => $library->is_connected(),
 			// Used to check if the Hello Elementor theme is installed but not activated.
 			'helloInstalled' => empty( $hello_theme_errors['theme_not_found'] ),
 			'helloActivated' => 'hello-elementor' === get_option( 'template' ),
@@ -87,14 +86,14 @@ class Module extends BaseModule {
 			'urls' => [
 				'kitLibrary' => Plugin::$instance->app->get_base_url() . '#/kit-library?order[direction]=desc&order[by]=featuredIndex',
 				'createNewPage' => Plugin::$instance->documents->get_create_new_post_url(),
-				'connect' => $account_service->get_admin_url( 'authorize', [
+				'connect' => $library->get_admin_url( 'authorize', [
 					'utm_source' => 'onboarding-wizard',
 					'utm_campaign' => 'connect-account',
 					'utm_medium' => 'wp-dash',
 					'utm_term' => self::VERSION,
 					'source' => 'generic',
 				] ),
-				'signUp' => $account_service->get_admin_url( 'authorize', [
+				'signUp' => $library->get_admin_url( 'authorize', [
 					'utm_source' => 'onboarding-wizard',
 					'utm_campaign' => 'connect-account',
 					'utm_medium' => 'wp-dash',

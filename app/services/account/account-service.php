@@ -2,9 +2,15 @@
 namespace Elementor\App\Services\Account;
 
 use Elementor\Plugin;
-use Elementor\App\Services\Base_service;
+use Elementor\App\Services\Base_Service;
 
-class Account_Service extends Base_service {
+class Account_Service extends Base_Service {
+	/**
+	 * @var mixed|string
+	 */
+	public $app;
+	public $connect_app;
+	public $connect;
 
 	/**
 	 * Get name.
@@ -13,25 +19,37 @@ class Account_Service extends Base_service {
 	 *
 	 * @return string
 	 */
-	public function get_name() {
+	public function get_name(): string {
 		return 'account_service';
 	}
 
-	public function get_subscription_plans( $app = '' ) {
-		return Plugin::$instance->common->get_component( 'connect' )->get_subscription_plans( $app );
+//	public function init() {
+//		$this->connect_app = Plugin::$instance->common->get_component( 'connect' );
+//		$this->connect = $this->connect_app->get_app();
+//	}
+
+	/**
+	 * @access public
+	 * @param string $app
+	 * @return object
+	 */
+	public function get_subscription_plans( $app = '' ): object {
+		return $this->connect_app->get_subscription_plans( $app );
 	}
 
-	public function is_connected() {
-		return $this->connect->is_connected();
-	}
+	/**
+	 * @return mixed
+	 * @access public
+	 */
+//	public function is_connected() {
+//		return $this->connect->is_connected();
+//	}
 
 	public function get_admin_url( $action, $params ) {
 		return $this->connect->get_admin_url( $action, $params );
 	}
 
-	public function __construct( $connected_app = 'library' ) {
-		parent::__construct( $connected_app );
-//		$this->connected_app = $connected_app;
-//		$this->connect = Plugin::$instance->common->get_component( 'connect' )->get_app( $this->connected_app );
+	public function __construct( $app = 'library' ) {
+		$this->app = $app;
 	}
 }

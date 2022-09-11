@@ -1,11 +1,7 @@
 <?php
 namespace Elementor\App\Services;
 
-use Elementor\App\Services\Service_Interface;
-
-abstract class Base_Service implements Service_Interface {
-	public static $service = null;
-
+interface Service_Interface {
 	/**
 	 * Get service name.
 	 *
@@ -17,5 +13,5 @@ abstract class Base_Service implements Service_Interface {
 	 *
 	 * @return string service name.
 	 */
-	abstract public function get_name(): string;
+	public function get_name(): string;
 }
