@@ -58,11 +58,10 @@ class Module extends BaseModule {
 		if ( ! Plugin::$instance->common ) {
 			return;
 		}
-//		$connect = Plugin::$instance->common->get_component( 'connect' );
-//
-//		$get_subscription_plans = $this->account_service->get_subscription_plans( $this->get_name() );
+
+		$get_subscription_plans = $this->account_service->get_subscription_plans( $this->get_name() );
 //		$is_connected = $this->account_service->is_connected();
-//		$get_admin_url = $this->account_service->get_admin_url( 'authorize', [
+
 
 		/** @var ConnectModule $connect */
 		$connect = Plugin::$instance->common->get_component( 'connect' );
@@ -72,7 +71,7 @@ class Module extends BaseModule {
 
 		Plugin::$instance->app->set_settings( 'kit-library', [
 			'has_access_to_module' => current_user_can( 'administrator' ),
-			'subscription_plans' => $connect->get_subscription_plans( 'kit-library' ),
+			'subscription_plans' => $get_subscription_plans,
 			'is_pro' => false,
 			'is_library_connected' => $kit_library->is_connected(),
 			'library_connect_url'  => $kit_library->get_admin_url( 'authorize', [
@@ -85,10 +84,17 @@ class Module extends BaseModule {
 		] );
 	}
 
+	public function init() {
+		$this->account_service = Plugin::$instance->app->service( 'account_service' );
+		$this->set_kit_library_settings();
+	}
 	/**
 	 * Module constructor.
 	 */
 	public function __construct() {
+		add_action( 'elementor/app/init',
+			[ $this, 'init' ]
+		);
 		Plugin::$instance->data_manager_v2->register_controller( new Kits_Controller() );
 		Plugin::$instance->data_manager_v2->register_controller( new Taxonomies_Controller() );
 
@@ -106,8 +112,8 @@ class Module extends BaseModule {
 			$connect_module->register_app( 'kit-library', Kit_Library::get_class_name() );
 		} );
 
-		add_action( 'elementor/init', function () {
-			$this->set_kit_library_settings();
-		}, 12 /** after the initiation of the connect kit library */ );
+//		add_action( 'elementor/init', function () {
+//			$this->set_kit_library_settings();
+//		}, 12 /** after the initiation of the connect kit library */ );
 	}
 }

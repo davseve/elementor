@@ -248,33 +248,33 @@ class App extends BaseApp {
 		$this->print_config( 'elementor-app-loader' );
 	}
 
-//	public function service( $service_name ) {
-//		return $this->services[ $service_name ];
-//	}
-//
-//	private function register_service( Base_Service $service ) {
-//		$this->services[ $service->get_name() ] = $service;
-//	}
-//
-//	private function resister_services() {
-//		$this->register_service( new Account_Service() );
-//	}
-//
-//	private function init_services() {
-//		if ( empty( $this->services ) ) {
-//			throw new \Exception( 'No services found' );
-//		}
-//
-//		foreach ( $this->services as $service ) {
-//			$service->init();
-//		}
-//	}
+	public function service( $service_name ) {
+		return $this->services[ $service_name ];
+	}
+
+	private function register_service( Base_Service $service ) {
+		$this->services[ $service->get_name() ] = $service;
+	}
+
+	private function resister_services() {
+		$this->register_service( new Account_Service() );
+	}
+
+	private function init_services() {
+		if ( empty( $this->services ) ) {
+			throw new \Exception( 'No services found' );
+		}
+
+		foreach ( $this->services as $service ) {
+			$service->init();
+		}
+	}
 
 	public function __construct() {
-//		add_action( 'elementor/init', function () {
-//			$this->resister_services();
-//			$this->init_services();
-//		} );
+		add_action( 'elementor/init', function () {
+			$this->resister_services();
+			$this->init_services();
+		} );
 
 		$this->add_component( 'site-editor', new Modules\SiteEditor\Module() );
 
