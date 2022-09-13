@@ -11,10 +11,8 @@ export default function ConnectionButton() {
 		if ( ! buttonRef.current || isUserConnected ) {
 			return;
 		}
+
 		const { data } = await accountService.auth( buttonRef.current );
-
-		const isConnected = await accountService.isUserConnected();
-
 
 		if ( data ) {
 			location.reload();

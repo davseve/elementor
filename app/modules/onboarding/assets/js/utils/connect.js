@@ -16,17 +16,17 @@ export default function Connect( props ) {
 		updateState( stateToUpdate );
 	};
 
-	const accountService = new AccountService();
-
 	useEffect( async () => {
-		const { data, error } = await accountService.auth( props.buttonRef.current, undefined, {
+		const accountService = new AccountService();
+		const { data, error } = await accountService.auth(
+			props.buttonRef.current,
+			undefined, {
 			width: 726,
 			height: 534,
 		} );
 		if ( error && props.errorCallback ) {
 			props.errorCallback();
 		}
-
 		if ( data ) {
 			if ( props.successCallback ) {
 				props.successCallback( data );

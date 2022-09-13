@@ -3,6 +3,7 @@
  */
 import { useContext } from 'react';
 import router from '@elementor/router';
+import services from '@elementor/services';
 import { Router, LocationProvider, createHistory } from '@reach/router';
 import { createHashSource } from 'reach-router-hash-history';
 import NotFound from 'elementor-app/pages/not-found';
@@ -31,6 +32,12 @@ export default function App() {
 	// Use hash route because it's actually rendered on a WP Admin page.
 	// Make it public for external uses.
 	router.appHistory = createHistory( createHashSource() );
+
+	// if ( services.account ) {
+	// 	console.log( services );
+	// } else {
+	// 	console.log( 'no services' );
+	// }
 
 	return (
 		<ErrorBoundary>

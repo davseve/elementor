@@ -29,7 +29,7 @@ export default class AccountService {
 		} );
 	}
 
-	isUserConnected() {
-		return elementorAppConfig[ 'kit-library' ].is_library_connected;
-	}
+	// isUserConnected() {
+	// 	return elementorAppConfig[ 'kit-library' ].is_library_connected;
+	// }
 }
