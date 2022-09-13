@@ -1,16 +1,24 @@
 import BarButton from '../bar-button/bar-button';
 import { useRef, useEffect } from 'react';
+import AccountService from 'elementor/app/services/account/account-service';
 
 export default function ConnectionButton() {
 	const buttonRef = useRef();
 	const isUserConnected = elementorAdminTopBarConfig.is_user_connected;
+	const accountService = new AccountService();
 
-	useEffect( () => {
+	useEffect( async () => {
 		if ( ! buttonRef.current || isUserConnected ) {
 			return;
 		}
+		const { data } = await accountService.auth( buttonRef.current );
 
-		jQuery( buttonRef.current ).elementorConnect();
+		const isConnected = await accountService.isUserConnected();
+
+
+		if ( data ) {
+			location.reload();
+		}
 	}, [] );
 
 	let tooltipText = __( 'Connect your account to get access to Elementor\'s Template Library & more.', 'elementor' ),

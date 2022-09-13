@@ -1,5 +1,6 @@
 import { useEffect, useContext } from 'react';
 import { OnboardingContext } from '../context/context';
+import AccountService from 'elementor/app/services/account/account-service';
 
 export default function Connect( props ) {
 	const { state, updateState, getStateObjectToUpdate } = useContext( OnboardingContext );
@@ -15,19 +16,24 @@ export default function Connect( props ) {
 		updateState( stateToUpdate );
 	};
 
-	useEffect( () => {
-		jQuery( props.buttonRef.current ).elementorConnect( {
-			success: ( data ) => props.successCallback ? props.successCallback( data ) : connectSuccessCallback( data ),
-			error: () => {
-				if ( props.errorCallback ) {
-					props.errorCallback();
-				}
-			},
-			popup: {
-				width: 726,
-				height: 534,
-			},
+	const accountService = new AccountService();
+
+	useEffect( async () => {
+		const { data, error } = await accountService.auth( props.buttonRef.current, undefined, {
+			width: 726,
+			height: 534,
 		} );
+		if ( error && props.errorCallback ) {
+			props.errorCallback();
+		}
+
+		if ( data ) {
+			if ( props.successCallback ) {
+				props.successCallback( data );
+			} else {
+				connectSuccessCallback( data );
+			}
+		}
 	}, [] );
 
 	return null;

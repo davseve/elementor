@@ -1,6 +1,7 @@
 <?php
 namespace Elementor\App\Modules\KitLibrary;
 
+use Elementor\App\Services\Account\Account_Service;
 use Elementor\Core\Admin\Menu\Main as MainMenu;
 use Elementor\Plugin;
 use Elementor\TemplateLibrary\Source_Local;
@@ -15,6 +16,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Module extends BaseModule {
+
+	private $account_service;
+
 	/**
 	 * Get name.
 	 *
@@ -53,18 +57,12 @@ class Module extends BaseModule {
 			return;
 		}
 
-		/** @var ConnectModule $connect */
-		$connect = Plugin::$instance->common->get_component( 'connect' );
-
-		/** @var Kit_Library $kit_library */
-		$kit_library = $connect->get_app( 'kit-library' );
-
 		Plugin::$instance->app->set_settings( 'kit-library', [
 			'has_access_to_module' => current_user_can( 'administrator' ),
-			'subscription_plans' => $connect->get_subscription_plans( 'kit-library' ),
+			'subscription_plans' => $this->account_service->get_subscription_plans( 'kit-library' ),
 			'is_pro' => false,
-			'is_library_connected' => $kit_library->is_connected(),
-			'library_connect_url'  => $kit_library->get_admin_url( 'authorize', [
+			'is_library_connected' => $this->account_service->is_connected( 'kit-library' ),
+			'library_connect_url'  => $this->account_service->get_admin_url( 'kit-library', 'authorize', [
 				'utm_source' => 'kit-library',
 				'utm_medium' => 'wp-dash',
 				'utm_campaign' => 'library-connect',
@@ -72,6 +70,11 @@ class Module extends BaseModule {
 			] ),
 			'access_level' => ConnectModule::ACCESS_LEVEL_CORE,
 		] );
+	}
+
+
+	public function init() {
+		$this->account_service = Plugin::$instance->app->services->account;
 	}
 
 	/**
@@ -96,6 +99,7 @@ class Module extends BaseModule {
 		} );
 
 		add_action( 'elementor/init', function () {
+			$this->init();
 			$this->set_kit_library_settings();
 		}, 12 /** after the initiation of the connect kit library */ );
 	}
