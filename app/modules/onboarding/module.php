@@ -68,9 +68,6 @@ class Module extends BaseModule {
 		$hello_theme = wp_get_theme( 'hello-elementor' );
 		$hello_theme_errors = is_object( $hello_theme->errors() ) ? $hello_theme->errors()->errors : [];
 
-		/** @var Library $library */
-//		$library = Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' );
-
 		Plugin::$instance->app->set_settings( 'onboarding', [
 			'eventPlacement' => 'Onboarding wizard',
 			'onboardingAlreadyRan' => get_option( self::ONBOARDING_OPTION ),

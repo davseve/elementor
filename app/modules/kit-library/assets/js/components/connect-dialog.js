@@ -15,9 +15,6 @@ export default function ConnectDialog( props ) {
 		const { data, error } = await elementorAppPackages.services.accountService.auth( approveButtonRef.current, parseUrl );
 		// const { data, error } = await accountService.auth( approveButtonRef.current, parseUrl );
 
-		if ( data ) {
-			location.reload();
-		}
 		if ( error ) {
 			props.onError( __( 'Unable to connect', 'elementor' ) );
 		}
