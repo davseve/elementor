@@ -3,7 +3,7 @@
  * TODO.
  */
 
-// Make router available for use within packages.
+// Make router and services available for use within packages.
 import router from './router';
 import services from './services';
 

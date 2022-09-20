@@ -250,7 +250,9 @@ class App extends BaseApp {
 	}
 
 	public function __construct() {
-		$this->services = new Services();
+		add_action( 'elementor/init', function() {
+			$this->services = new Services();
+		});
 
 		$this->add_component( 'site-editor', new Modules\SiteEditor\Module() );
 

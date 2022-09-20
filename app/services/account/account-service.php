@@ -8,16 +8,10 @@ class Account_Service implements service_interface {
 	/**
 	 * @var mixed|string
 	 */
-	public $app;
 	public $connect_app;
-	public $connect;
 	public $name;
 
 	public function init() {
-		if ( ! Plugin::$instance->common ) {
-			return;
-		}
-
 		$this->connect_app = Plugin::$instance->common->get_component( 'connect' );
 		return $this;
 	}
@@ -47,5 +41,9 @@ class Account_Service implements service_interface {
 	 */
 	public function get_admin_url( $app, $action, $params ) {
 		return $this->connect_app->get_app( $app )->get_admin_url( $action, $params );
+	}
+
+	public function access_from_pro( $name = 'test' ) {
+		return $name;
 	}
 }

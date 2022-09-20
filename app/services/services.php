@@ -3,6 +3,7 @@
 namespace Elementor\App\Services;
 
 use Elementor\App\Services\Account\Account_Service;
+use Elementor\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -15,6 +16,10 @@ class Services {
 	public $account;
 
 	private function resister_services() {
+		if ( ! Plugin::$instance->common ) {
+			return;
+		}
+
 		$this->account = ( new Account_Service() )->init();
 
 		do_action( 'elementor/app/services/register', $this );

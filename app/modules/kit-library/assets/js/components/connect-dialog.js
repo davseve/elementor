@@ -1,7 +1,6 @@
 import { Dialog } from '@elementor/app-ui';
 import { useSettingsContext } from '../context/settings-context';
-// import AccountService from 'elementor/app/services/account/account-service';
-
+import services from '@elementor/services';
 const { useEffect, useRef } = React;
 
 export default function ConnectDialog( props ) {
@@ -12,8 +11,8 @@ export default function ConnectDialog( props ) {
 		// const accountService = new AccountService();
 		const parseUrl = ( url ) => url.replace( '%%page%%', props.pageId );
 
-		const { data, error } = await elementorAppPackages.services.accountService.auth( approveButtonRef.current, parseUrl );
-		// const { data, error } = await accountService.auth( approveButtonRef.current, parseUrl );
+		// const { data, error } = await elementorAppPackages.services.accountService.auth( approveButtonRef.current, parseUrl );
+		const { data, error } = await services.accountService.auth( approveButtonRef.current, parseUrl );
 
 		if ( error ) {
 			props.onError( __( 'Unable to connect', 'elementor' ) );
