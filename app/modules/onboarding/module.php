@@ -26,8 +26,6 @@ class Module extends BaseModule {
 	const VERSION = '1.0.0';
 	const ONBOARDING_OPTION = 'elementor_onboarded';
 
-	private $account_service;
-
 	/**
 	 * Get name.
 	 *
@@ -68,11 +66,14 @@ class Module extends BaseModule {
 		$hello_theme = wp_get_theme( 'hello-elementor' );
 		$hello_theme_errors = is_object( $hello_theme->errors() ) ? $hello_theme->errors()->errors : [];
 
+		/** @var Library $library */
+		$library = Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' );
+
 		Plugin::$instance->app->set_settings( 'onboarding', [
 			'eventPlacement' => 'Onboarding wizard',
 			'onboardingAlreadyRan' => get_option( self::ONBOARDING_OPTION ),
 			'onboardingVersion' => self::VERSION,
-			'isLibraryConnected' => $this->account_service->is_connected( 'library' ),
+			'isLibraryConnected' => $library->is_connected(),
 			// Used to check if the Hello Elementor theme is installed but not activated.
 			'helloInstalled' => empty( $hello_theme_errors['theme_not_found'] ),
 			'helloActivated' => 'hello-elementor' === get_option( 'template' ),
@@ -83,14 +84,14 @@ class Module extends BaseModule {
 			'urls' => [
 				'kitLibrary' => Plugin::$instance->app->get_base_url() . '#/kit-library?order[direction]=desc&order[by]=featuredIndex',
 				'createNewPage' => Plugin::$instance->documents->get_create_new_post_url(),
-				'connect' => $this->account_service->get_admin_url( 'library', 'authorize', [
+				'connect' => $library->get_admin_url( 'authorize', [
 					'utm_source' => 'onboarding-wizard',
 					'utm_campaign' => 'connect-account',
 					'utm_medium' => 'wp-dash',
 					'utm_term' => self::VERSION,
 					'source' => 'generic',
 				] ),
-				'signUp' => $this->account_service->get_admin_url( 'library', 'authorize', [
+				'signUp' => $library->get_admin_url( 'authorize', [
 					'utm_source' => 'onboarding-wizard',
 					'utm_campaign' => 'connect-account',
 					'utm_medium' => 'wp-dash',
@@ -443,15 +444,10 @@ class Module extends BaseModule {
 		}
 	}
 
-	public function init() {
-		$this->account_service = Plugin::$instance->app->services->account;
-	}
-
 	public function __construct() {
 		add_action( 'elementor/init', function() {
 			// Only load when viewing the onboarding app.
 			if ( Plugin::$instance->app->is_current() ) {
-				$this->init();
 				$this->set_onboarding_settings();
 				// Needed for installing the Hello Elementor theme.
 				wp_enqueue_script( 'updates' );

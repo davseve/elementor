@@ -1,6 +1,7 @@
 import { Grid } from '@elementor/app-ui';
 import HeaderButtons from '../../../../../../assets/js/layout/header-buttons';
 import { appsEventTrackingDispatch } from 'elementor-app/event-track/apps-event-tracking';
+import services from '@elementor/services';
 
 export default function Header( props ) {
 	const eventTracking = ( command, source = 'home page', kitName = null, eventType = 'click' ) => appsEventTrackingDispatch(
@@ -14,7 +15,8 @@ export default function Header( props ) {
 		),
 		onClose = () => {
 			eventTracking( 'kit-library/close', props?.pageId, props?.kitName );
-			window.top.location = elementorAppConfig.admin_url;
+			// window.top.location = elementorAppConfig.admin_url;
+			window.top.location = services.configService.get().admin_url;
 		};
 
 	return (

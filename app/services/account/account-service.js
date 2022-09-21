@@ -28,4 +28,10 @@ export default class AccountService {
 			} );
 		} );
 	}
+
+	isConnected( app ) {
+		if ( elementorAppConfig ) {
+			return elementorAppConfig[ app ].is_library_connectedd;
+		}
+	}
 }

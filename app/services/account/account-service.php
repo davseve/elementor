@@ -42,8 +42,4 @@ class Account_Service implements service_interface {
 	public function get_admin_url( $app, $action, $params ) {
 		return $this->connect_app->get_app( $app )->get_admin_url( $action, $params );
 	}
-
-	public function access_from_pro( $name = 'test' ) {
-		return $name;
-	}
 }

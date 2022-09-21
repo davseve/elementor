@@ -7,6 +7,7 @@ import { QueryClientProvider, QueryClient } from 'react-query';
 import { ReactQueryDevtools } from 'react-query/devtools';
 import { Router } from '@reach/router';
 import { SettingsProvider } from './context/settings-context';
+import services from '@elementor/services';
 
 const queryClient = new QueryClient( {
 	defaultOptions: {
@@ -19,10 +20,13 @@ const queryClient = new QueryClient( {
 } );
 
 export default function App() {
+	const config = services.configService.get( 'kit-library' );
+
 	return (
 		<div className="e-kit-library">
 			<QueryClientProvider client={ queryClient }>
-				<SettingsProvider value={ elementorAppConfig[ 'kit-library' ] }>
+				{/*<SettingsProvider value={ elementorAppConfig[ 'kit-library' ] }>*/}
+				<SettingsProvider value={ config }>
 					<LastFilterProvider>
 						<Router>
 							<Index path="/" />
