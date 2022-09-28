@@ -47,7 +47,6 @@ class Module extends BaseModule {
 
 	const META_KEY_ELEMENTOR_EDIT_MODE = '_elementor_edit_mode';
 
-
 	/**
 	 * Assigning the export process to a property, so we can use the process from outside the class.
 	 *
@@ -68,6 +67,13 @@ class Module extends BaseModule {
 	 * @var Revert
 	 */
 	public $revert;
+
+	/**
+	 * Needed in order to add configData to the import frontend response.
+	 *
+	 * @var bool
+	 */
+	private $needs_configdata = false;
 
 	/**
 	 * Get name.
@@ -91,7 +97,7 @@ class Module extends BaseModule {
 	}
 
 	public function get_init_settings() {
-		if ( ! Plugin::$instance->app->is_current() ) {
+		if ( ! Plugin::$instance->app->is_current() && ! $this->needs_configdata ) {
 			return [];
 		}
 
@@ -471,11 +477,14 @@ class Module extends BaseModule {
 	 * Handle import kit ajax request.
 	 */
 	private function handle_import_kit() {
+		$this->needs_configdata = true;
 		// PHPCS - Already validated in caller function
 		$settings = json_decode( stripslashes( $_POST['data'] ), true ); // phpcs:ignore WordPress.Security.NonceVerification.Missing
 		$tmp_folder_id = $settings['session'];
 
 		$import = $this->import_kit( $tmp_folder_id, $settings );
+
+		$import['configData'] = $this->get_init_settings();
 
 		wp_send_json_success( $import );
 	}

@@ -6,9 +6,10 @@ export default class ConfigService {
 	 */
 
 	get( app ) {
-		if ( elementorAppConfig[ app ] ) {
-			return elementorAppConfig[ app ];
-		}
-		return elementorAppConfig;
+		return new Promise( ( resolve, reject ) => {
+			if ( elementorAppConfig[ app ] ) {
+				resolve( elementorAppConfig[ app ] );
+			}
+		} )
 	}
 }

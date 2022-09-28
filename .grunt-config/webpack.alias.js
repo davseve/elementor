@@ -30,6 +30,7 @@ module.exports = {
 			'e-styles': path.resolve( __dirname, '../packages/elementor-ui/styles' ),
 			'e-components': path.resolve( __dirname, '../packages/elementor-ui/components' ),
 			'e-utils': path.resolve( __dirname, '../packages/elementor-ui/components/utils' ),
+			'@elementor/services': path.resolve( __dirname, '../app/assets/js/services.js' ),
 		},
 	},
 };
