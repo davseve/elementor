@@ -12,5 +12,5 @@ interface Service_Interface {
 	 *
 	 * @return void
 	 */
-	public function init();
+	public function register();
 }

@@ -13,7 +13,7 @@ class Account_Service implements service_interface {
 	public $connect;
 	public $name;
 
-	public function init() {
+	public function register() {
 		if ( ! Plugin::$instance->common ) {
 			return;
 		}
@@ -47,5 +47,9 @@ class Account_Service implements service_interface {
 	 */
 	public function get_admin_url( $app, $action, $params ) {
 		return $this->connect_app->get_app( $app )->get_admin_url( $action, $params );
+	}
+
+	public function name( $name ) {
+		return $name;
 	}
 }

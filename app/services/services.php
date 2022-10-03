@@ -15,7 +15,7 @@ class Services {
 	public $account;
 
 	private function resister_services() {
-		$this->account = ( new Account_Service() )->init();
+		$this->account = ( new Account_Service() )->register();
 
 		do_action( 'elementor/app/services/register', $this );
 	}
