@@ -1,9 +1,10 @@
-import { useState, useContext } from 'react';
-
+import { useState, useEffect, useContext, useRef } from 'react';
 import TemplatesFeatures from './components/templates-features/templates-features';
 import KitContentCheckbox from './components/kit-content-checkbox/kit-content-checkbox';
 import CptOptionsSelectBox from '../cpt-select-box/cpt-select-box';
 import GoProButton from 'elementor-app/molecules/go-pro-button';
+import ConnectLicenseButton from 'elementor-app/molecules/connect-license-button';
+import Connect from 'elementor-app/molecules/connect';
 import Box from 'elementor-app/ui/atoms/box';
 import List from 'elementor-app/ui/molecules/list';
 import Heading from 'elementor-app/ui/atoms/heading';
@@ -14,12 +15,15 @@ import { SharedContext } from './../../context/shared-context/shared-context-pro
 
 import './kit-content.scss';
 
-export default function KitContent( { contentData, hasPro } ) {
+export default function KitContent( { contentData, hasPro, processType } ) {
 	const [ containerHover, setContainerHover ] = useState( {} ),
 		sharedContext = useContext( SharedContext ),
-		{ referrer, currentPage } = sharedContext.data,
+		{ referrer, currentPage, proStatus } = sharedContext.data,
 		// Need to read the hasPro value first from the props because the plugin might be installed during the process.
 		isProExist = hasPro || elementorAppConfig.hasPro,
+		isProStatus = proStatus || elementorAppConfig.proStatus,
+
+
 		getTemplateFeatures = ( features, index ) => {
 			if ( ! features ) {
 				return;
@@ -29,12 +33,37 @@ export default function KitContent( { contentData, hasPro } ) {
 				<TemplatesFeatures
 					features={ features }
 					isLocked={ ! isProExist }
+					proStatus={ proStatus }
 					showTooltip={ containerHover[ index ] }
 				/>
 			);
 		},
+		test = ( data ) => {
+			console.log( 'test', data );
+		},
 		setContainerHoverState = ( index, state ) => {
 			setContainerHover( ( prevState ) => ( { ...prevState, [ index ]: state } ) );
+		},
+		actionButton = ( isLockedFeaturesNoPro ) => {
+			if ( false === isProStatus ) {
+				const url = `https://go.elementor.com/renew-${ processType }?utm_term=${ processType }&utm_source=import-export&utm_medium=wp-dash&utm_campaign=connect-and-activate-license`;
+				return (
+					<Connect
+						onSuccess={ ( data ) => test( { success: data } ) }
+						onError={ ( message ) => test( { onError: message } ) }
+						// className="e-app-export-kit-content__go-pro-button"
+						// url={ url }
+					/>
+				);
+			} else if ( isLockedFeaturesNoPro && 'undefined' === typeof isProStatus ) {
+				return (
+					<GoProButton
+
+						className="e-app-export-kit-content__go-pro-button"
+						url="https://go.elementor.com/go-pro-import-export"
+					/>
+				);
+			}
 		},
 		eventTracking = ( event, chosenPart ) => {
 			if ( 'kit-library' === referrer ) {
@@ -50,7 +79,6 @@ export default function KitContent( { contentData, hasPro } ) {
 				);
 			}
 		};
-
 	if ( ! contentData.length ) {
 		return null;
 	}
@@ -85,14 +113,8 @@ export default function KitContent( { contentData, hasPro } ) {
 												<Text variant="sm" tag="p" className="e-app-export-kit-content__description">
 													{ data.description || getTemplateFeatures( data.features, index ) }
 												</Text>
+												{ 'templates' === type && actionButton( isLockedFeaturesNoPro ) }
 												{ 'content' === type && <CptOptionsSelectBox /> }
-												{
-													isLockedFeaturesNoPro &&
-													<GoProButton
-														className="e-app-export-kit-content__go-pro-button"
-														url="https://go.elementor.com/go-pro-import-export"
-													/>
-												}
 											</Grid>
 										</Grid>
 									</Grid>
@@ -110,6 +132,7 @@ KitContent.propTypes = {
 	className: PropTypes.string,
 	contentData: PropTypes.array.isRequired,
 	hasPro: PropTypes.bool,
+	processType: PropTypes.oneOf( [ 'import', 'export' ] ),
 };
 
 KitContent.defaultProps = {

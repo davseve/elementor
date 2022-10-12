@@ -9,6 +9,7 @@ import { cptObjectToOptionsArray } from '../../../../../shared/cpt-select-box/cp
 export default function ImportContentDisplay( {
 	manifest,
 	hasPro,
+	proStatus,
 	hasPlugins,
 	isAllRequiredPluginsSelected,
 	onResetProcess,
@@ -51,7 +52,7 @@ export default function ImportContentDisplay( {
 				</Notice>
 			}
 
-			<KitContent contentData={ kitData } hasPro={ hasPro } />
+			<KitContent contentData={ kitData } hasPro={ hasPro } processType="import" />
 		</>
 	);
 }
@@ -59,6 +60,7 @@ export default function ImportContentDisplay( {
 ImportContentDisplay.propTypes = {
 	manifest: PropTypes.object,
 	hasPro: PropTypes.bool,
+	proStatus: PropTypes.bool,
 	hasPlugins: PropTypes.bool,
 	isAllRequiredPluginsSelected: PropTypes.bool,
 	onResetProcess: PropTypes.func,

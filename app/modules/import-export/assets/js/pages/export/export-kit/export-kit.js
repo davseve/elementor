@@ -38,10 +38,12 @@ export default function ExportKit() {
 	useEffect( () => {
 		exportContext.dispatch( { type: 'SET_IS_EXPORT_PROCESS_STARTED', payload: true } );
 		sharedContext.dispatch( { type: 'SET_CPT', payload: cptObjectToOptionsArray( elementorAppConfig[ 'import-export' ].summaryTitles.content?.customPostTypes, 'plural' ) } );
+		sharedContext.dispatch( { type: 'IS_PRO_ACTIVATED', payload: elementorAppConfig.proStatus } );
 	}, [] );
 
 	return (
 		<Layout type="export" footer={ getFooter() }>
+			{ console.log( 'export: ', elementorAppConfig.proStatus ) }
 			<section className="e-app-export-kit">
 				<PageHeader
 					heading={ __( 'Export a Website Kit', 'elementor' ) }
@@ -53,7 +55,7 @@ export default function ExportKit() {
 					] }
 				/>
 
-				<KitContent contentData={ kitContentData } />
+				<KitContent contentData={ kitContentData } processType="export" />
 
 				<KitInformation />
 			</section>

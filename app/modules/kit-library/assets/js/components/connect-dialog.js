@@ -1,6 +1,5 @@
 import { Dialog } from '@elementor/app-ui';
 import { useSettingsContext } from '../context/settings-context';
-
 const { useEffect, useRef } = React;
 
 export default function ConnectDialog( props ) {

@@ -67,6 +67,7 @@ export default function ImportContent() {
 				<ImportContentDisplay
 					manifest={ uploadedData?.manifest }
 					hasPro={ isProInstalledDuringProcess }
+					proStatus={ elementorAppConfig.proStatus }
 					hasPlugins={ ! ! requiredPlugins.length }
 					isAllRequiredPluginsSelected={ requiredPlugins.length === plugins.length }
 					onResetProcess={ handleResetProcess }
