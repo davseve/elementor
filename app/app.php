@@ -1,6 +1,7 @@
 <?php
 namespace Elementor\App;
 
+use Elementor\App\Services\Services;
 use Elementor\Icons_Manager;
 use Elementor\Modules\WebCli\Module as WebCLIModule;
 use Elementor\Core\Base\App as BaseApp;
@@ -16,6 +17,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class App extends BaseApp {
 
 	const PAGE_ID = 'elementor-app';
+
+	public $services;
 
 	/**
 	 * Get module name.
@@ -248,6 +251,8 @@ class App extends BaseApp {
 	}
 
 	public function __construct() {
+		$this->services = new Services();
+
 		$this->add_component( 'site-editor', new Modules\SiteEditor\Module() );
 
 		if ( current_user_can( 'manage_options' ) && Plugin::$instance->experiments->is_feature_active( 'e_import_export' ) || Utils::is_wp_cli() ) {

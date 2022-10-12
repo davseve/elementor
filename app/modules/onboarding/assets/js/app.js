@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { LocationProvider, Router } from '@reach/router';
 import router from '@elementor/router';
+import services from '@elementor/services';
 
 import { ContextProvider } from './context/context';
 import Account from './pages/account';
