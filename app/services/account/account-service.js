@@ -40,4 +40,10 @@ export default class AccountService {
 			return elementorAppConfig[ app ].is_library_connectedd;
 		}
 	}
+
+	connectUrl() {
+		return $e.data.get( 'connect/connect-url', {}, { refresh: true } )
+			.then( ( response ) => response.data )
+			.then( ( data ) => data );
+	}
 }

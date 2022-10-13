@@ -7,11 +7,5 @@ class Services {
 }
 
 const services = new Services();
-// window.elementorAppPackages = {
-// 	...window.elementorAppPackages,
-// 	services,
-// };
 
 export default services;
-// export const accountService = new AccountService();
-// export const configService = new ConfigService();

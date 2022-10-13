@@ -12,6 +12,7 @@ import Text from 'elementor-app/ui/atoms/text';
 import Grid from 'elementor-app/ui/grid/grid';
 import { appsEventTrackingDispatch } from 'elementor-app/event-track/apps-event-tracking';
 import { SharedContext } from './../../context/shared-context/shared-context-provider.js';
+import { services } from '@elementor/services';
 
 import './kit-content.scss';
 
@@ -22,7 +23,7 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 		// Need to read the hasPro value first from the props because the plugin might be installed during the process.
 		isProExist = hasPro || elementorAppConfig.hasPro,
 		isProStatus = proStatus || elementorAppConfig.proStatus,
-
+		connectUrl = elementorAppConfig[ 'import-export' ].connectUrlInner,
 
 		getTemplateFeatures = ( features, index ) => {
 			if ( ! features ) {
@@ -46,13 +47,13 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 		},
 		actionButton = ( isLockedFeaturesNoPro ) => {
 			if ( false === isProStatus ) {
-				const url = `https://go.elementor.com/renew-${ processType }?utm_term=${ processType }&utm_source=import-export&utm_medium=wp-dash&utm_campaign=connect-and-activate-license`;
+				const renewUrl = `https://go.elementor.com/renew-${ processType }?utm_term=${ processType }&utm_source=import-export&utm_medium=wp-dash&utm_campaign=connect-and-activate-license`;
 				return (
 					<Connect
 						onSuccess={ ( data ) => test( { success: data } ) }
 						onError={ ( message ) => test( { onError: message } ) }
 						// className="e-app-export-kit-content__go-pro-button"
-						// url={ url }
+						url={ elementorAppConfig[ 'import-export' ].connectUrlInner }
 					/>
 				);
 			} else if ( isLockedFeaturesNoPro && 'undefined' === typeof isProStatus ) {
@@ -79,6 +80,11 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				);
 			}
 		};
+	useEffect( async () => {
+		const connectUrl = await elementorAppPackages.services.accountService.connectUrl();
+		console.log( 'connect-url', connectUrl );
+	}, [] );
+
 	if ( ! contentData.length ) {
 		return null;
 	}
@@ -107,9 +113,10 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 										<Grid item container>
 											<Heading variant="h4" tag="h3" className="e-app-export-kit-content__title">
 												{ data.title }
+												{ isLockedFeaturesNoPro && <i className="eicon-lock" /> + 'PRO' }
 											</Heading>
 
-											<Grid item container direction={ isLockedFeaturesNoPro ? 'row' : 'column' } alignItems={ 'baseline' } >
+											<Grid item container direction={ 'templates' === type ? 'row' : 'column' } alignItems={ 'baseline' } >
 												<Text variant="sm" tag="p" className="e-app-export-kit-content__description">
 													{ data.description || getTemplateFeatures( data.features, index ) }
 												</Text>

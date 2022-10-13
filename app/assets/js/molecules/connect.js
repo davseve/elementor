@@ -1,8 +1,7 @@
-import {useEffect, useRef} from 'react';
+import { useEffect, useRef } from 'react';
 import ConnectLicenseButton from 'elementor-app/molecules/connect-license-button';
 
 export default function Connect( props ) {
-	console.log( 'Connect props: ', props );
 	const connectButtonRef = useRef();
 	// const connectSuccessCallback = ( data ) => {
 	// 	let isLibraryConnected = false;
@@ -13,12 +12,23 @@ export default function Connect( props ) {
 	// 	isLibraryConnected = true;
 	// };
 
-	useEffect( () => {
-		jQuery( connectButtonRef.current ).elementorConnect( {
-			success: ( e, data ) => props.onSuccess( data ),
-			error: () => props.onError( __( 'Unable to connect', 'elementor' ) ),
-			// parseUrl: ( url ) => url.replace( '%%page%%', 'export' ),
-		} );
+
+
+	useEffect( async () => {
+		const parseUrl = ( url ) => url.replace( '%%page%%', 'export' );
+		const { data, error } = await elementorAppPackages.services.accountService.auth( connectButtonRef.current, parseUrl );
+
+		if ( error ) {
+			props.onError( __( 'Unable to connect', 'elementor' ) );
+		}
+		if ( data ) {
+			props.onSuccess( data );
+		}
+		// jQuery( connectButtonRef.current ).elementorConnect( {
+		// 	success: ( e, data ) => props.onSuccess( data ),
+		// 	error: () => props.onError( __( 'Unable to connect', 'elementor' ) ),
+		// 	// parseUrl: ( url ) => url.replace( '%%page%%', 'export' ),
+		// } );
 	}, [] );
 
 	return (
@@ -26,7 +36,7 @@ export default function Connect( props ) {
 			connectButtonRef={ connectButtonRef }
 			// approveButtonUrl={ settings.library_connect_url }
 			// onClick={ props.onClick }
-			connectUrl="https://my.elementor.com/authorize?response_type=code&client_id=1&redirect_uri=https://my.elementor.com/authorize&scope=library"
+			url={ props.url }
 		/>
 	);
 }
@@ -35,4 +45,5 @@ Connect.propTypes = {
 	connectButtonRef: PropTypes.object,
 	onError: PropTypes.func.isRequired,
 	onSuccess: PropTypes.func.isRequired,
+	url: PropTypes.string.isRequired,
 };
