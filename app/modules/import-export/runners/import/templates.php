@@ -18,6 +18,7 @@ class Templates extends Import_Runner_Base {
 		return (
 			Utils::has_pro() &&
 			isset( $data['include'] ) &&
+			Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' )->is_connected() &&
 			in_array( 'templates', $data['include'], true ) &&
 			! empty( $data['extracted_directory_path'] ) &&
 			! empty( $data['manifest']['templates'] )

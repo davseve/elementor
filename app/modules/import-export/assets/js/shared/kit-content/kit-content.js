@@ -15,6 +15,7 @@ import { SharedContext } from './../../context/shared-context/shared-context-pro
 import { services } from '@elementor/services';
 
 import './kit-content.scss';
+import Button from "elementor-app/ui/molecules/button";
 
 export default function KitContent( { contentData, hasPro, processType } ) {
 	const [ containerHover, setContainerHover ] = useState( {} ),
@@ -46,22 +47,20 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 			setContainerHover( ( prevState ) => ( { ...prevState, [ index ]: state } ) );
 		},
 		actionButton = ( isLockedFeaturesNoPro ) => {
-			if ( false === isProStatus ) {
+			if ( isLockedFeaturesNoPro && ! isProStatus ) {
+				return (
+					<GoProButton
+						className="e-app-export-kit-content__go-pro-button"
+						url="https://go.elementor.com/go-pro-import-export"
+					/>
+				);
+			} else if ( false === isProStatus ) {
 				const renewUrl = `https://go.elementor.com/renew-${ processType }?utm_term=${ processType }&utm_source=import-export&utm_medium=wp-dash&utm_campaign=connect-and-activate-license`;
 				return (
 					<Connect
 						onSuccess={ ( data ) => test( { success: data } ) }
 						onError={ ( message ) => test( { onError: message } ) }
-						// className="e-app-export-kit-content__go-pro-button"
 						url={ elementorAppConfig[ 'import-export' ].connectUrlInner }
-					/>
-				);
-			} else if ( isLockedFeaturesNoPro && 'undefined' === typeof isProStatus ) {
-				return (
-					<GoProButton
-
-						className="e-app-export-kit-content__go-pro-button"
-						url="https://go.elementor.com/go-pro-import-export"
 					/>
 				);
 			}
@@ -113,7 +112,15 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 										<Grid item container>
 											<Heading variant="h4" tag="h3" className="e-app-export-kit-content__title">
 												{ data.title }
-												{ isLockedFeaturesNoPro && <i className="eicon-lock" /> + 'PRO' }
+												{ ( isLockedFeaturesNoPro || ( ! isProStatus && 'templates' === type ) ) &&
+													<Button
+														text={ __( 'PRO', 'elementor' ) }
+														url="https://go.elementor.com/go-pro-import-export"
+														target="_blank"
+														icon="eicon-lock e-app-export-kit-content__go-pro-label-icon"
+														className="e-app-export-kit-content__go-pro-label"
+													/>
+												}
 											</Heading>
 
 											<Grid item container direction={ 'templates' === type ? 'row' : 'column' } alignItems={ 'baseline' } >

@@ -16,6 +16,7 @@ class Templates extends Export_Runner_Base {
 	public function should_export( array $data ) {
 		return (
 			Utils::has_pro() &&
+//			Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' )->is_connected() &&
 			isset( $data['include'] ) &&
 			in_array( 'templates', $data['include'], true )
 		);

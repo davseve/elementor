@@ -2,6 +2,8 @@ $e-app-export-kit-content-title-color: tints(700);
 $e-app-export-kit-content-title-dark-color: dark-tints(100);
 $e-app-export-kit-content-description-color: tints(600);
 $e-app-export-kit-content-description-dark-color: dark-tints(200);
+$e-app-export-kit-content-go-pro-button-text-color: tints(300);
+$e-app-export-kit-content-go-pro-button-background-color: tints(500);
 
 $root: e-app-export-kit-content;
 
@@ -30,6 +32,21 @@ $root: e-app-export-kit-content;
   	&__small-notice {
 	  font-style: italic;
 	  color: var(--e-app-export-kit-content-description-color);
+	}
+
+  	&__go-pro-label {
+	  color: var(--e-app-export-kit-content-go-pro-button-text-color);
+	  background-color: var(--e-app-export-kit-content-go-pro-button-background-color);
+	  padding: spacing(5);
+	  font-size: 12px;
+	  border-radius: 4px;
+	  margin-left: spacing(5);
+	  background-color: #F1F3F5;
+
+	  &-icon {
+		padding: spacing(2);
+		font-size: 10px;
+	  }
 	}
 }
 

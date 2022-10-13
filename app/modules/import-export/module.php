@@ -12,6 +12,7 @@ use Elementor\Plugin;
 use Elementor\Tools;
 use Elementor\Utils as ElementorUtils;
 use Elementor\App\Modules\ImportExport\Utils as ImportExportUtils;
+use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -525,7 +526,7 @@ class Module extends BaseModule {
 		$export_nonce = wp_create_nonce( 'elementor_export' );
 		$export_url = add_query_arg( [ '_nonce' => $export_nonce ], Plugin::$instance->app->get_base_url() );
 
-		return [
+		$config_data = [
 			'exportURL' => $export_url,
 			'summaryTitles' => $this->get_summary_titles(),
 			'builtinWpPostTypes' => ImportExportUtils::get_builtin_wp_post_types(),
@@ -533,13 +534,19 @@ class Module extends BaseModule {
 			'isUnfilteredFilesEnabled' => Uploads_Manager::are_unfiltered_uploads_enabled(),
 			'elementorHomePageUrl' => $this->get_elementor_home_page_url(),
 			'recentlyEditedElementorPageUrl' => $this->get_recently_edited_elementor_page_url(),
-			'connectUrlInner' => Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' )->get_admin_url( 'authorize', [
+			'access_level' => ConnectModule::ACCESS_LEVEL_PRO,
+		];
+
+		if ( ElementorUtils::has_pro() ) {
+			$config_data['connectUrlInner'] = Plugin::$instance->common->get_component( 'connect' )->get_app( 'activate' )->get_admin_url( 'authorize', [
 				'utm_source' => 'generic',
 				'utm_medium' => 'wp-dash',
 				'utm_campaign' => 'connect-account',
-				'utm_term' => '1.0.0', // Will be replaced in the frontend.
-			] ),
-		];
+				'source' => 'generic',
+			] );
+		}
+
+		return $config_data;
 	}
 
 	/**

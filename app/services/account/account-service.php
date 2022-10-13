@@ -20,7 +20,7 @@ class Account_Service implements service_interface {
 			return;
 		}
 
-		$this->controller = new Data_Controller();
+		Plugin::$instance->data_manager_v2->register_controller( new Data_Controller() );
 		$this->connect_app = Plugin::$instance->common->get_component( 'connect' );
 		return $this;
 	}
