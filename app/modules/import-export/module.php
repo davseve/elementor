@@ -534,7 +534,9 @@ class Module extends BaseModule {
 			'isUnfilteredFilesEnabled' => Uploads_Manager::are_unfiltered_uploads_enabled(),
 			'elementorHomePageUrl' => $this->get_elementor_home_page_url(),
 			'recentlyEditedElementorPageUrl' => $this->get_recently_edited_elementor_page_url(),
-			'access_level' => ConnectModule::ACCESS_LEVEL_PRO,
+			'access_level' => ConnectModule::ACCESS_LEVEL_CORE,
+			'connect_level' => Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' )->get_license_type(),
+
 		];
 
 		if ( ElementorUtils::has_pro() ) {
