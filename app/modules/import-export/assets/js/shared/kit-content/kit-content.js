@@ -46,7 +46,7 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 			setContainerHover( ( prevState ) => ( { ...prevState, [ index ]: state } ) );
 		},
 		actionButton = ( isLockedFeaturesNoPro ) => {
-			if ( isLockedFeaturesNoPro && 'undefined' === typeof isProStatus ) {
+			if ( isLockedFeaturesNoPro ) {
 				return (
 					<GoProButton
 						className="e-app-export-kit-content__go-pro-button"
@@ -79,10 +79,6 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				);
 			}
 		};
-	// UseEffect( async () => {
-	// 	const connectUrl = await elementorAppPackages.services.accountService.connectUrl();
-	// 	console.log( 'connect-url', connectUrl );
-	// }, [] );
 
 	if ( ! contentData.length ) {
 		return null;
