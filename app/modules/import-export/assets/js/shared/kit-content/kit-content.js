@@ -3,7 +3,6 @@ import TemplatesFeatures from './components/templates-features/templates-feature
 import KitContentCheckbox from './components/kit-content-checkbox/kit-content-checkbox';
 import CptOptionsSelectBox from '../cpt-select-box/cpt-select-box';
 import GoProButton from 'elementor-app/molecules/go-pro-button';
-import ConnectLicenseButton from 'elementor-app/molecules/connect-license-button';
 import Connect from 'elementor-app/molecules/connect';
 import Box from 'elementor-app/ui/atoms/box';
 import List from 'elementor-app/ui/molecules/list';
@@ -11,11 +10,10 @@ import Heading from 'elementor-app/ui/atoms/heading';
 import Text from 'elementor-app/ui/atoms/text';
 import Grid from 'elementor-app/ui/grid/grid';
 import { appsEventTrackingDispatch } from 'elementor-app/event-track/apps-event-tracking';
+import Button from 'elementor-app/ui/molecules/button';
 import { SharedContext } from './../../context/shared-context/shared-context-provider.js';
-import { services } from '@elementor/services';
 
 import './kit-content.scss';
-import Button from "elementor-app/ui/molecules/button";
 
 export default function KitContent( { contentData, hasPro, processType } ) {
 	const [ containerHover, setContainerHover ] = useState( {} ),
@@ -40,14 +38,15 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				/>
 			);
 		},
-		test = ( data ) => {
-			console.log( 'test', data );
+		setLicenseType = ( data ) => {
+			sharedContext.dispatch( { type: 'IS_PRO_ACTIVATED', payload: data } );
+			console.log( 'setLicenseType', data );
 		},
 		setContainerHoverState = ( index, state ) => {
 			setContainerHover( ( prevState ) => ( { ...prevState, [ index ]: state } ) );
 		},
 		actionButton = ( isLockedFeaturesNoPro ) => {
-			if ( isLockedFeaturesNoPro && ! isProStatus ) {
+			if ( isLockedFeaturesNoPro && 'undefined' === typeof isProStatus ) {
 				return (
 					<GoProButton
 						className="e-app-export-kit-content__go-pro-button"
@@ -58,8 +57,8 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				const renewUrl = `https://go.elementor.com/renew-${ processType }?utm_term=${ processType }&utm_source=import-export&utm_medium=wp-dash&utm_campaign=connect-and-activate-license`;
 				return (
 					<Connect
-						onSuccess={ ( data ) => test( { success: data } ) }
-						onError={ ( message ) => test( { onError: message } ) }
+						onSuccess={ ( data ) => setLicenseType( { success: data } ) }
+						onError={ ( message ) => setLicenseType( { onError: message } ) }
 						url={ elementorAppConfig[ 'import-export' ].connectUrlInner }
 					/>
 				);
@@ -79,10 +78,10 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				);
 			}
 		};
-	useEffect( async () => {
-		const connectUrl = await elementorAppPackages.services.accountService.connectUrl();
-		console.log( 'connect-url', connectUrl );
-	}, [] );
+	// UseEffect( async () => {
+	// 	const connectUrl = await elementorAppPackages.services.accountService.connectUrl();
+	// 	console.log( 'connect-url', connectUrl );
+	// }, [] );
 
 	if ( ! contentData.length ) {
 		return null;

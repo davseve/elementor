@@ -7,15 +7,6 @@ export default function ConnectDialog( props ) {
 	const approveButtonRef = useRef();
 
 	useEffect( () => {
-		// const parseUrl = ( url ) => url.replace( '%%page%%', props.pageId );
-		// const { data, error } = await elementorAppPackages.services.accountService.auth( approveButtonRef.current, parseUrl );
-
-		// if ( error ) {
-		// 	props.onError( __( 'Unable to connect', 'elementor' ) );
-		// }
-		// if ( data ) {
-		// 	props.onSuccess( data );
-	// }
 		jQuery( approveButtonRef.current ).elementorConnect( {
 			success: ( e, data ) => props.onSuccess( data ),
 			error: () => props.onError( __( 'Unable to connect', 'elementor' ) ),

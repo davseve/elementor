@@ -2,7 +2,6 @@ import KitsComponent from './data/kits/component';
 import router from '@elementor/router';
 import TaxonomiesComponent from './data/taxonomies/component';
 import KitLibraryComponent from './e-component';
-import services from '@elementor/services'
 
 export default class KitLibrary {
 	constructor() {
@@ -20,9 +19,7 @@ export default class KitLibrary {
 		} );
 	}
 
-	hasAccessToModule = async () => {
-		// const hasAccess =
-		return await services.configService.get( 'kit-library' )?.has_access_to_module;
-		// return elementorAppConfig[ 'kit-library' ]?.has_access_to_module;
+	hasAccessToModule() {
+		return elementorAppConfig[ 'kit-library' ]?.has_access_to_module;
 	}
 }

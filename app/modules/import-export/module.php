@@ -13,6 +13,7 @@ use Elementor\Tools;
 use Elementor\Utils as ElementorUtils;
 use Elementor\App\Modules\ImportExport\Utils as ImportExportUtils;
 use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;
+use ElementorPro\License\API;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -535,8 +536,7 @@ class Module extends BaseModule {
 			'elementorHomePageUrl' => $this->get_elementor_home_page_url(),
 			'recentlyEditedElementorPageUrl' => $this->get_recently_edited_elementor_page_url(),
 			'access_level' => ConnectModule::ACCESS_LEVEL_CORE,
-			'connect_level' => Plugin::$instance->common->get_component( 'connect' )->get_app( 'library' )->get_license_type(),
-
+//			'access_level_pro' => API::get_library_access_level( 'kit' ),
 		];
 
 		if ( ElementorUtils::has_pro() ) {

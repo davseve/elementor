@@ -15,20 +15,20 @@ export default function Connect( props ) {
 
 
 	useEffect( async () => {
-		const parseUrl = ( url ) => url.replace( '%%page%%', 'export' );
-		const { data, error } = await elementorAppPackages.services.accountService.auth( connectButtonRef.current, parseUrl );
-
-		if ( error ) {
-			props.onError( __( 'Unable to connect', 'elementor' ) );
-		}
-		if ( data ) {
-			props.onSuccess( data );
-		}
-		// jQuery( connectButtonRef.current ).elementorConnect( {
-		// 	success: ( e, data ) => props.onSuccess( data ),
-		// 	error: () => props.onError( __( 'Unable to connect', 'elementor' ) ),
-		// 	// parseUrl: ( url ) => url.replace( '%%page%%', 'export' ),
-		// } );
+		// const parseUrl = ( url ) => url.replace( '%%page%%', 'export' );
+		// const { data, error } = await elementorAppPackages.services.accountService.auth( connectButtonRef.current, parseUrl );
+		//
+		// if ( error ) {
+		// 	props.onError( __( 'Unable to connect', 'elementor' ) );
+		// }
+		// if ( data ) {
+		// 	props.onSuccess( data );
+		// }
+		jQuery( connectButtonRef.current ).elementorConnect( {
+			success: ( e, data ) => props.onSuccess( data ),
+			error: () => props.onError( __( 'Unable to connect', 'elementor' ) ),
+			// parseUrl: ( url ) => url.replace( '%%page%%', 'export' ),
+		} );
 	}, [] );
 
 	return (

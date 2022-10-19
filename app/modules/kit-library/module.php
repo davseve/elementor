@@ -15,9 +15,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Module extends BaseModule {
-
-	private $account_service;
-
 	/**
 	 * Get name.
 	 *
@@ -77,10 +74,6 @@ class Module extends BaseModule {
 		] );
 	}
 
-	public function init_services() {
-		$this->account_service = Plugin::$instance->app->services->account;
-	}
-
 	/**
 	 * Module constructor.
 	 */
@@ -103,7 +96,6 @@ class Module extends BaseModule {
 		} );
 
 		add_action( 'elementor/init', function () {
-			$this->init_services();
 			$this->set_kit_library_settings();
 		}, 12 /** after the initiation of the connect kit library */ );
 	}
