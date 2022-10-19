@@ -60,6 +60,7 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 						onSuccess={ ( data ) => setLicenseType( { success: data } ) }
 						onError={ ( message ) => setLicenseType( { onError: message } ) }
 						url={ elementorAppConfig[ 'import-export' ].connectUrlInner }
+						processType={ processType }
 					/>
 				);
 			}
@@ -111,7 +112,7 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 										<Grid item container>
 											<Heading variant="h4" tag="h3" className="e-app-export-kit-content__title">
 												{ data.title }
-												{ ( isLockedFeaturesNoPro || ( ! isProStatus && 'templates' === type ) ) &&
+												{ ( isLockedFeaturesNoPro ) &&
 													<Button
 														text={ __( 'PRO', 'elementor' ) }
 														url="https://go.elementor.com/go-pro-import-export"

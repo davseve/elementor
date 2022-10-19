@@ -541,10 +541,10 @@ class Module extends BaseModule {
 
 		if ( ElementorUtils::has_pro() ) {
 			$config_data['connectUrlInner'] = Plugin::$instance->common->get_component( 'connect' )->get_app( 'activate' )->get_admin_url( 'authorize', [
-				'utm_source' => 'generic',
+				'utm_source' => 'import-export',
 				'utm_medium' => 'wp-dash',
-				'utm_campaign' => 'connect-account',
-				'source' => 'generic',
+				'utm_campaign' => 'connect-and-activate-license',
+				'utm_term' => '%%page%%', // Will be replaced in the frontend.
 			] );
 		}
 
