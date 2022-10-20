@@ -101,6 +101,7 @@ class App extends BaseApp {
 			'admin_url' => admin_url(),
 			'login_url' => wp_login_url(),
 			'base_url' => $this->get_base_url(),
+			'proStatus' => false,
 		];
 	}
 
@@ -195,6 +196,7 @@ class App extends BaseApp {
 			[
 				'wp-i18n',
 				'react',
+				'elementor-common',
 			],
 			ELEMENTOR_VERSION,
 			true
@@ -204,8 +206,6 @@ class App extends BaseApp {
 			'elementor-app-packages',
 			$this->get_js_assets_url( 'app-packages' ),
 			[
-				'wp-i18n',
-				'react',
 				'elementor-app-services',
 			],
 			ELEMENTOR_VERSION,

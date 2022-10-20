@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext, useRef } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import TemplatesFeatures from './components/templates-features/templates-features';
 import KitContentCheckbox from './components/kit-content-checkbox/kit-content-checkbox';
 import CptOptionsSelectBox from '../cpt-select-box/cpt-select-box';
@@ -18,12 +18,11 @@ import './kit-content.scss';
 export default function KitContent( { contentData, hasPro, processType } ) {
 	const [ containerHover, setContainerHover ] = useState( {} ),
 		sharedContext = useContext( SharedContext ),
-		{ referrer, currentPage, proStatus } = sharedContext.data,
+		{ referrer, currentPage } = sharedContext.data,
 		// Need to read the hasPro value first from the props because the plugin might be installed during the process.
 		isProExist = hasPro || elementorAppConfig.hasPro,
-		isProStatus = proStatus || elementorAppConfig.proStatus,
 		connectUrl = elementorAppConfig[ 'import-export' ].connectUrlInner,
-
+		[ isLicenseValid, setIsLicenseValid ] = useState( false ),
 		getTemplateFeatures = ( features, index ) => {
 			if ( ! features ) {
 				return;
@@ -33,7 +32,6 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				<TemplatesFeatures
 					features={ features }
 					isLocked={ ! isProExist }
-					proStatus={ proStatus }
 					showTooltip={ containerHover[ index ] }
 				/>
 			);
@@ -53,7 +51,7 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 						url="https://go.elementor.com/go-pro-import-export"
 					/>
 				);
-			} else if ( false === isProStatus ) {
+			} else if ( typeof isLicenseValid !== 'undefined' && ! isLicenseValid ) {
 				const renewUrl = `https://go.elementor.com/renew-${ processType }?utm_term=${ processType }&utm_source=import-export&utm_medium=wp-dash&utm_campaign=connect-and-activate-license`;
 				return (
 					<Connect
@@ -79,6 +77,13 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				);
 			}
 		};
+
+	useEffect( () => {
+		// elementorAppServices.licenseService.isValid().then( ( result ) => {
+		// 	setIsLicenseValid( result );
+		// } );
+		setIsLicenseValid( elementorAppServices.licenseService.isValid() );
+	}, [] );
 
 	if ( ! contentData.length ) {
 		return null;

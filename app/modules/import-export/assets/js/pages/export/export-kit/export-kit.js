@@ -38,7 +38,6 @@ export default function ExportKit() {
 	useEffect( () => {
 		exportContext.dispatch( { type: 'SET_IS_EXPORT_PROCESS_STARTED', payload: true } );
 		sharedContext.dispatch( { type: 'SET_CPT', payload: cptObjectToOptionsArray( elementorAppConfig[ 'import-export' ].summaryTitles.content?.customPostTypes, 'plural' ) } );
-		sharedContext.dispatch( { type: 'IS_PRO_ACTIVATED', payload: elementorAppConfig.proStatus } );
 	}, [] );
 
 	return (

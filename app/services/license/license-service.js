@@ -10,4 +10,8 @@ export default class AppsLicenseService extends $e.modules.ComponentBase {
 	isExpired() {
 		return false;
 	}
+
+	isValid() {
+		return false;
+	}
 }

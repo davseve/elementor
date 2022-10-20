@@ -536,17 +536,19 @@ class Module extends BaseModule {
 			'elementorHomePageUrl' => $this->get_elementor_home_page_url(),
 			'recentlyEditedElementorPageUrl' => $this->get_recently_edited_elementor_page_url(),
 			'access_level' => ConnectModule::ACCESS_LEVEL_CORE,
+			'connectUrlInner' => null,
 //			'access_level_pro' => API::get_library_access_level( 'kit' ),
+
 		];
 
-		if ( ElementorUtils::has_pro() ) {
-			$config_data['connectUrlInner'] = Plugin::$instance->common->get_component( 'connect' )->get_app( 'activate' )->get_admin_url( 'authorize', [
-				'utm_source' => 'import-export',
-				'utm_medium' => 'wp-dash',
-				'utm_campaign' => 'connect-and-activate-license',
-				'utm_term' => '%%page%%', // Will be replaced in the frontend.
-			] );
-		}
+//		if ( ElementorUtils::has_pro() ) {
+//			$config_data['connectUrlInner'] = Plugin::$instance->common->get_component( 'connect' )->get_app( 'activate' )->get_admin_url( 'authorize', [
+//				'utm_source' => 'import-export',
+//				'utm_medium' => 'wp-dash',
+//				'utm_campaign' => 'connect-and-activate-license',
+//				'utm_term' => '%%page%%', // Will be replaced in the frontend.
+//			] );
+//		}
 
 		return $config_data;
 	}
