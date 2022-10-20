@@ -4,14 +4,15 @@ export default class AppsLicenseService extends $e.modules.ComponentBase {
 	}
 
 	isActive() {
-		return false;
+		return Promise.resolve( false );
 	}
 
 	isExpired() {
-		return false;
+		return Promise.resolve( false );
 	}
 
 	isValid() {
-		return false;
+		return this.isActive()
+			.then( () => false );
 	}
 }

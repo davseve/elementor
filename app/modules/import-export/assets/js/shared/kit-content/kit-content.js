@@ -79,11 +79,10 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 		};
 
 	useEffect( () => {
-		// elementorAppServices.licenseService.isValid().then( ( result ) => {
-		// 	setIsLicenseValid( result );
-		// } );
-		setIsLicenseValid( elementorAppServices.licenseService.isValid() );
-	}, [] );
+		elementorAppServices.licenseService.isValid().then( ( result ) => {
+			setIsLicenseValid( result );
+		} );
+	} );
 
 	if ( ! contentData.length ) {
 		return null;

@@ -42,7 +42,6 @@ export default function ExportKit() {
 
 	return (
 		<Layout type="export" footer={ getFooter() }>
-			{ console.log( 'export: ', elementorAppConfig.proStatus ) }
 			<section className="e-app-export-kit">
 				<PageHeader
 					heading={ __( 'Export a Website Kit', 'elementor' ) }
