@@ -21,8 +21,8 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 		{ referrer, currentPage } = sharedContext.data,
 		// Need to read the hasPro value first from the props because the plugin might be installed during the process.
 		isProExist = hasPro || elementorAppConfig.hasPro,
-		connectUrl = elementorAppConfig[ 'import-export' ].connectUrlInner,
-		[ isLicenseValid, setIsLicenseValid ] = useState( false ),
+		[ isLicenseValid, setIsLicenseValid ] = useState( true ),
+		[ isConnected, setIsConnected ] = useState( false ),
 		getTemplateFeatures = ( features, index ) => {
 			if ( ! features ) {
 				return;
@@ -36,9 +36,11 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				/>
 			);
 		},
-		setLicenseType = ( data ) => {
-			sharedContext.dispatch( { type: 'IS_PRO_ACTIVATED', payload: data } );
-			console.log( 'setLicenseType', data );
+		setIsConnectedState = ( data ) => {
+			if ( data.success ) {
+				setIsConnected( true );
+			}
+			console.log( 'setLicenseType', data.success );
 		},
 		setContainerHoverState = ( index, state ) => {
 			setContainerHover( ( prevState ) => ( { ...prevState, [ index ]: state } ) );
@@ -55,9 +57,9 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 				const renewUrl = `https://go.elementor.com/renew-${ processType }?utm_term=${ processType }&utm_source=import-export&utm_medium=wp-dash&utm_campaign=connect-and-activate-license`;
 				return (
 					<Connect
-						onSuccess={ ( data ) => setLicenseType( { success: data } ) }
-						onError={ ( message ) => setLicenseType( { onError: message } ) }
-						url={ elementorAppConfig[ 'import-export' ].connectUrlInner }
+						onSuccess={ ( data ) => setIsConnectedState( { success: data } ) }
+						onError={ ( message ) => setIsConnectedState( { onError: message } ) }
+						url={ elementorAppConfig[ 'import-export' ].connectUrl }
 						processType={ processType }
 					/>
 				);
@@ -82,7 +84,7 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 		elementorAppServices.licenseService.isValid().then( ( result ) => {
 			setIsLicenseValid( result );
 		} );
-	} );
+	}, [ isConnected ] );
 
 	if ( ! contentData.length ) {
 		return null;

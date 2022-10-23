@@ -69,7 +69,6 @@ export default function ImportKit() {
 	useEffect( () => {
 		sharedContext.dispatch( { type: 'SET_INCLUDES', payload: [] } );
 		sharedContext.dispatch( { type: 'SET_CURRENT_PAGE_NAME', payload: ImportKit.name } );
-		sharedContext.dispatch( { type: 'IS_PRO_ACTIVATED', payload: elementorAppConfig.proStatus } );
 	}, [] );
 
 	// Uploading the kit after file is selected.
