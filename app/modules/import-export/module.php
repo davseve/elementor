@@ -12,8 +12,7 @@ use Elementor\Plugin;
 use Elementor\Tools;
 use Elementor\Utils as ElementorUtils;
 use Elementor\App\Modules\ImportExport\Utils as ImportExportUtils;
-use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;
-use ElementorPro\License\API;
+use Elementor\Core\Common\Modules\Connect\Module as ConnectModule;;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
@@ -535,7 +534,6 @@ class Module extends BaseModule {
 			'isUnfilteredFilesEnabled' => Uploads_Manager::are_unfiltered_uploads_enabled(),
 			'elementorHomePageUrl' => $this->get_elementor_home_page_url(),
 			'recentlyEditedElementorPageUrl' => $this->get_recently_edited_elementor_page_url(),
-			'access_level' => ConnectModule::ACCESS_LEVEL_CORE,
 			'connectUrl' => null,
 		];
 

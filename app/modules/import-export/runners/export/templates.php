@@ -14,11 +14,8 @@ class Templates extends Export_Runner_Base {
 	}
 
 	public function should_export( array $data ) {
-//		$license_is_valid = Plugin::elementor()->data_manager_v2->run_endpoint( 'app/services/license/is-valid' ) ?? false;
-
 		return (
 			Utils::has_pro() &&
-//			$license_is_valid &&
 			isset( $data['include'] ) &&
 			in_array( 'templates', $data['include'], true )
 		);

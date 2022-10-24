@@ -21,6 +21,7 @@ class App extends BaseApp {
 	const PAGE_ID = 'elementor-app';
 
 	public $services;
+
 	/**
 	 * Get module name.
 	 *
@@ -97,7 +98,6 @@ class App extends BaseApp {
 			'admin_url' => admin_url(),
 			'login_url' => wp_login_url(),
 			'base_url' => $this->get_base_url(),
-			'proStatus' => false,
 		];
 	}
 
@@ -258,7 +258,7 @@ class App extends BaseApp {
 	}
 
 	public function __construct() {
-//		$this->services = new Services();
+		$this->services = new Services();
 
 		$this->add_component( 'site-editor', new Modules\SiteEditor\Module() );
 

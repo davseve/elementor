@@ -36,7 +36,6 @@ TemplatesFeatures.propTypes = {
 	features: PropTypes.object,
 	isLocked: PropTypes.bool,
 	showTooltip: PropTypes.bool,
-	proStatus: PropTypes.bool,
 };
 
 TemplatesFeatures.defaultProps = {

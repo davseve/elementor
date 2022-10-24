@@ -59,7 +59,6 @@ export default function ImportContentDisplay( {
 ImportContentDisplay.propTypes = {
 	manifest: PropTypes.object,
 	hasPro: PropTypes.bool,
-	proStatus: PropTypes.bool,
 	hasPlugins: PropTypes.bool,
 	isAllRequiredPluginsSelected: PropTypes.bool,
 	onResetProcess: PropTypes.func,
