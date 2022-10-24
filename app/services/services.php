@@ -8,10 +8,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+/**
+ * @since 3.9.0
+ */
 class Services {
-	/**
-	 * @var Account_Service
-	 */
 	public $account;
 
 	public function __construct() {

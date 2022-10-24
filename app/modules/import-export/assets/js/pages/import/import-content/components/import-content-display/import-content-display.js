@@ -9,7 +9,6 @@ import { cptObjectToOptionsArray } from '../../../../../shared/cpt-select-box/cp
 export default function ImportContentDisplay( {
 	manifest,
 	hasPro,
-	proStatus,
 	hasPlugins,
 	isAllRequiredPluginsSelected,
 	onResetProcess,

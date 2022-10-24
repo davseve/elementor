@@ -1,6 +1,6 @@
 export default class AppsLicenseService extends $e.modules.ComponentBase {
 	getNamespace() {
-		return 'apps/license';
+		return 'app/services/license';
 	}
 
 	isActive() {
@@ -12,7 +12,6 @@ export default class AppsLicenseService extends $e.modules.ComponentBase {
 	}
 
 	isValid() {
-		return this.isActive()
-			.then( () => false );
+		return Promise.resolve( false );
 	}
 }

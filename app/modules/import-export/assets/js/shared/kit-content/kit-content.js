@@ -10,7 +10,7 @@ import Heading from 'elementor-app/ui/atoms/heading';
 import Text from 'elementor-app/ui/atoms/text';
 import Grid from 'elementor-app/ui/grid/grid';
 import { appsEventTrackingDispatch } from 'elementor-app/event-track/apps-event-tracking';
-import Button from 'elementor-app/ui/molecules/button';
+import Label from 'elementor-app/ui/atoms/label';
 import { SharedContext } from './../../context/shared-context/shared-context-provider.js';
 
 import './kit-content.scss';
@@ -31,7 +31,7 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 			return (
 				<TemplatesFeatures
 					features={ features }
-					isLocked={ ! isProExist }
+					isLocked={ ! isProExist || ! isLicenseValid }
 					showTooltip={ containerHover[ index ] }
 				/>
 			);
@@ -40,7 +40,6 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 			if ( data.success ) {
 				setIsConnected( true );
 			}
-			console.log( 'setLicenseType', data.success );
 		},
 		setContainerHoverState = ( index, state ) => {
 			setContainerHover( ( prevState ) => ( { ...prevState, [ index ]: state } ) );
@@ -115,12 +114,10 @@ export default function KitContent( { contentData, hasPro, processType } ) {
 											<Heading variant="h4" tag="h3" className="e-app-export-kit-content__title">
 												{ data.title }
 												{ ( isLockedFeaturesNoPro ) &&
-													<Button
-														text={ __( 'PRO', 'elementor' ) }
-														url="https://go.elementor.com/go-pro-import-export"
-														target="_blank"
+													<Label
 														icon="eicon-lock e-app-export-kit-content__go-pro-label-icon"
 														className="e-app-export-kit-content__go-pro-label"
+														text={ __( 'PRO', 'elementor' ) }
 													/>
 												}
 											</Heading>

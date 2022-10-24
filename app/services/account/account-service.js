@@ -28,8 +28,4 @@ export default class AccountService {
 			} );
 		} );
 	}
-
-	connectUrl() {
-		return null;
-	}
 }

@@ -15,12 +15,12 @@ class Templates extends Import_Runner_Base {
 	}
 
 	public function should_import( array $data ) {
-		$license_is_valid = Plugin::elementor()->data_manager_v2->run_endpoint( 'app/services/license/is-valid' ) ?? false;
+//		$license_is_valid = Plugin::elementor()->data_manager_v2->run_endpoint( 'app/services/license/is-valid' ) ?? false;
 
 		return (
 			Utils::has_pro() &&
 			isset( $data['include'] ) &&
-			$license_is_valid &&
+//			$license_is_valid &&
 			in_array( 'templates', $data['include'], true ) &&
 			! empty( $data['extracted_directory_path'] ) &&
 			! empty( $data['manifest']['templates'] )
