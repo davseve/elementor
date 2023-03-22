@@ -44,10 +44,11 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	}
 
 	getContainer() {
-		const elementSettings = this.getElementSettings();
+		const elementSettings = this.getElementSettings(),
+			container = this.$element[ 0 ];
 
-		if ( elementSettings.grid_overlay && '' !== elementSettings.grid_overlay && this.$element[ 0 ].classList.contains( 'elementor-element-editable' ) ) {
-			return this.$element[ 0 ];
+		if ( elementSettings.grid_overlay && '' !== elementSettings.grid_overlay && container.classList.contains( 'elementor-element-editable' ) ) {
+			return this.getCorrectContainer( elementSettings, container );
 		} else if ( document.querySelector( '.e-grid-overlay' ) && '' === elementSettings.grid_overlay ) {
 			document.querySelector( '.e-grid-overlay' ).remove();
 		}
@@ -62,15 +63,14 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 			elementSettings = this.getElementSettings(),
 			cells = document.createElement( 'div' ),
 			editorBody = document.querySelector( 'body.elementor-editor-active' );
-			gridTemplateColumns
 
 		cells.classList.add( 'e-grid-overlay' );
 		cells.style.position = 'absolute';
 		cells.style.display = 'grid';
 		cells.style.pointerEvents = 'none';
-		cells.style.width = position.width + 'px';
-		cells.style.height = position.height + 'px';
-		cells.style.top = position.top + 'px';
+		// cells.style.width = position.width + 'px';
+		// cells.style.height = position.height + 'px';
+		// cells.style.top = position.top + 'px';
 		cells.style.gridTemplateColumns = this.getComputedStyle( container, 'grid-template-columns' );
 		cells.style.gridTemplateRows = this.getComputedStyle( container, 'grid-template-rows' );
 
@@ -104,5 +104,9 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	getComputedStyle( container, cssProp ) {
 		const cssObj = window.getComputedStyle( container, null );
 		return cssObj.getPropertyValue( cssProp );
+	}
+
+	getCorrectContainer( elementSettings, container ) {
+		return 'boxed' === elementSettings.content_width ? this.findElement( '.e-con-inner' ) : container;
 	}
 }
