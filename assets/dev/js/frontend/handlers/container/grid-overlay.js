@@ -32,21 +32,14 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	}
 
 	onInit() {
-		if ( ! this.isActive() ) {
-			return;
-		}
-		this.initElements();
+		super.onInit();
 
 		this.addLayoutOverlay();
 	}
 
-	initElements() {
-		this.elements = this.getDefaultElements();
-	}
-
 	bindEvents() {
 
-	};
+	}
 
 	addLayoutOverlay() {
 		const container = this.getContainer();
@@ -59,21 +52,20 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	}
 
 	getContainer() {
-		const elementSettings = this.getElementSettings(),
-			classes = this.getSettings( 'classes' );
+		const elementSettings = this.getElementSettings();
 
 		this.removeExistingOverlay();
-		if ( elementSettings.grid_overlay && '' !== elementSettings.grid_overlay && this.elements.editableContainer.classList.contains( classes.editableContainer ) ) {
+		if ( elementSettings.grid_overlay && '' !== elementSettings.grid_overlay ) {
 			return this.getCorrectContainer( elementSettings, this.elements.editableContainer );
 		}
 	}
 
 	removeExistingOverlay() {
-		const selectors = this.getSettings( 'selectors' ),
-			gridOverlayInCurrentContainer = this.elements.editableContainer.querySelector( selectors.gridOverlay );
+		// const selectors = this.getSettings( 'selectors' ),
+			// gridOverlayInCurrentContainer = this.elements.editableContainer.querySelector( selectors.gridOverlay );
 
-		if ( gridOverlayInCurrentContainer ) {
-			gridOverlayInCurrentContainer.remove();
+		if ( this.elements.gridOverlay ) {
+			this.elements.gridOverlay.remove();
 		}
 	}
 
@@ -83,35 +75,33 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 
 	createOverlayParentContainer( container ) {
 		const elementSettings = this.getElementSettings(),
+			leftZeroPosition = 0,
 			leftPosition = this.getContainerPosition( container ).left,
 			leftBoxedPosition = leftPosition - this.getComputedStyle( container, '--padding-left', true ) + 'px',
-			gridOverlayLeftPosition = this.containerWidthType === BOXED ? leftBoxedPosition : leftPosition;
-		let gridOverlayContainer = document.createElement( 'div' );
+			gridOverlayLeftPosition = this.containerWidthType === BOXED ? leftPosition : 0,
+			ParentContainer = this.containerWidthType === BOXED ? container.querySelectorAll( '.e-con-inner' ) : container;
+
+		const gridOverlayContainer = document.createElement( 'div' );
 
 		gridOverlayContainer.classList.add( 'e-grid-overlay' );
-		gridOverlayContainer.style.position = 'absolute';
-		gridOverlayContainer.style.display = 'grid';
-		gridOverlayContainer.style.pointerEvents = 'none';
-		gridOverlayContainer.style.height = this.getContainerPosition( container ).height + 'px';
-		gridOverlayContainer.style.bottom = '0px';
-		// gridOverlayContainer.style.left = leftPosition + 'px';
-		gridOverlayContainer.style.left = gridOverlayLeftPosition;
-		gridOverlayContainer.style.width = this.getComputedStyle( container, 'width' );
-		gridOverlayContainer.style.margin = this.getComputedStyle( container, 'margin' );
-		gridOverlayContainer.style.padding = this.getComputedStyle( container, 'padding' );
-		gridOverlayContainer.style.paddingRight = this.getComputedStyle( container, '--padding-right' );
-		gridOverlayContainer.style.paddingLeft = this.getComputedStyle( container, '--padding-left' );
+
+		gridOverlayContainer.style.paddingRight = 0;
+		gridOverlayContainer.style.paddingLeft = 0;
+		// gridOverlayContainer.style.paddingBottom = this.getComputedStyle( container, '--padding-bottom' );
+		// gridOverlayContainer.style.paddingTop = this.getComputedStyle( container, '--padding-top' );
 		gridOverlayContainer.style.gridTemplateColumns = this.getComputedStyle( container, 'grid-template-columns' );
 		gridOverlayContainer.style.gridTemplateRows = this.getComputedStyle( container, 'grid-template-rows' );
-		gridOverlayContainer.style.gridGap = this.getComputedStyle( container, 'grid-gap' );
+		// gridOverlayContainer.style.gridGap = this.getComputedStyle( container, 'grid-gap' );
 		gridOverlayContainer.style.gridAutoFlow = this.getComputedStyle( container, 'grid-auto-flow' );
 		gridOverlayContainer.style.gridAutoRows = this.getComputedStyle( container, 'grid-auto-rows' );
 		gridOverlayContainer.style.gridAutoColumns = this.getComputedStyle( container, 'grid-auto-columns' );
 		gridOverlayContainer.style.justifyItems = this.getComputedStyle( container, 'justify-items' );
-		gridOverlayContainer.style.alignItems = this.getComputedStyle( container, 'align-items' );
+		gridOverlayContainer.style.justifyContent = 'center'; // Should be set to center in the original grid as well ?
+ 		gridOverlayContainer.style.alignItems = this.getComputedStyle( container, 'align-items' );
+		gridOverlayContainer.style.alignContetnt = this.getComputedStyle( container, 'align-content' );
 		gridOverlayContainer.style.alignSelf = this.getComputedStyle( container, 'align-self' );
 
-		this.elements.editableContainer.appendChild( gridOverlayContainer );
+		container.appendChild( gridOverlayContainer );
 		this.createOverlayCells( gridOverlayContainer );
 	}
 
@@ -198,4 +188,8 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	getActiveBreakpointsList() {
 		return elementorFrontend.breakpoints.getActiveBreakpointsList();
 	}
+
+	// onDeviceModeChange{
+	// 	this.addLayoutOverlay();
+	// }
 }

@@ -113,13 +113,3 @@
 		}
 	}
 }
-
-.e-grid-overlay{
-	position: absolute;
-	border: 1px dashed pink;
-
-	&-item {
-		border: 1px dashed pink;
-		pointer-events: none;
-	}
-}

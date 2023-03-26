@@ -22,6 +22,41 @@
 
 @import "../flex-icons.scss";
 
+// mixins
+
+@mixin e-grid-overlay-base {
+	padding-top: var( --padding-top );
+	padding-bottom: var( --padding-bottom );
+	padding-right: var( --padding-right );
+	padding-left: var( --padding-left );
+	display: grid;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	pointer-events: none;
+	grid-template-columns: var(--e-con-grid-template-columns);
+	grid-template-rows: var(--e-con-grid-template-rows);
+	grid-gap: var( --gap);
+	//grid-auto-flow: var();
+	//grid-auto-rows: var();
+	//grid-auto-columns: var();
+	justify-items: var(--justify-items);
+	//align-items: var();
+	//align-content: var();
+	//align-self: var();
+}
+@mixin e-grid-overlay-boxed {
+	@include e-grid-overlay-base;
+
+
+}
+
+@mixin e-grid-overlay-full-width {
+	@include e-grid-overlay-base;
+	width: 100%;
+	left: 0;
+}
+
 // Hidden WP Admin Bar
 html.elementor-html {
 	margin-top: 0 !important;
@@ -55,6 +90,31 @@ html.elementor-html {
 		&.elementor-dragging-on-child,
 		&.e-con-boxed.elementor-html5dnd-current-element {
 			outline: 1px solid var( --outline-color );
+		}
+	}
+
+	.e-grid-overlay {
+		display: none;
+	}
+
+	.elementor-element-editable.e-grid {
+		&.e-con-full {
+			> .e-grid-overlay {
+				@include e-grid-overlay-full-width;
+			}
+		}
+
+		&.e-con-boxed {
+			> .e-con-inner{
+				> .e-grid-overlay {
+					@include e-grid-overlay-boxed;
+				}
+			}
+		}
+
+		.e-grid-overlay-item {
+			border: 1px dashed pink;
+			pointer-events: none;
 		}
 	}
 
