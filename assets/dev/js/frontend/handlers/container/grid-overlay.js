@@ -84,23 +84,6 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 		const gridOverlayContainer = document.createElement( 'div' );
 
 		gridOverlayContainer.classList.add( 'e-grid-overlay' );
-
-		gridOverlayContainer.style.paddingRight = 0;
-		gridOverlayContainer.style.paddingLeft = 0;
-		// gridOverlayContainer.style.paddingBottom = this.getComputedStyle( container, '--padding-bottom' );
-		// gridOverlayContainer.style.paddingTop = this.getComputedStyle( container, '--padding-top' );
-		gridOverlayContainer.style.gridTemplateColumns = this.getComputedStyle( container, 'grid-template-columns' );
-		gridOverlayContainer.style.gridTemplateRows = this.getComputedStyle( container, 'grid-template-rows' );
-		// gridOverlayContainer.style.gridGap = this.getComputedStyle( container, 'grid-gap' );
-		gridOverlayContainer.style.gridAutoFlow = this.getComputedStyle( container, 'grid-auto-flow' );
-		gridOverlayContainer.style.gridAutoRows = this.getComputedStyle( container, 'grid-auto-rows' );
-		gridOverlayContainer.style.gridAutoColumns = this.getComputedStyle( container, 'grid-auto-columns' );
-		gridOverlayContainer.style.justifyItems = this.getComputedStyle( container, 'justify-items' );
-		gridOverlayContainer.style.justifyContent = 'center'; // Should be set to center in the original grid as well ?
- 		gridOverlayContainer.style.alignItems = this.getComputedStyle( container, 'align-items' );
-		gridOverlayContainer.style.alignContetnt = this.getComputedStyle( container, 'align-content' );
-		gridOverlayContainer.style.alignSelf = this.getComputedStyle( container, 'align-self' );
-
 		container.appendChild( gridOverlayContainer );
 		this.createOverlayCells( gridOverlayContainer );
 	}

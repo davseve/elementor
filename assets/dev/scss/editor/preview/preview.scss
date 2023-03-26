@@ -37,14 +37,9 @@
 	grid-template-columns: var(--e-con-grid-template-columns);
 	grid-template-rows: var(--e-con-grid-template-rows);
 	grid-gap: var( --gap);
-	//grid-auto-flow: var();
-	//grid-auto-rows: var();
-	//grid-auto-columns: var();
 	justify-items: var(--justify-items);
-	//align-items: var();
-	//align-content: var();
-	//align-self: var();
 }
+
 @mixin e-grid-overlay-boxed {
 	@include e-grid-overlay-base;
 
