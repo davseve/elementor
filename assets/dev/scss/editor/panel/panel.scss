@@ -80,6 +80,9 @@
 
     //Footer
     @import "footer";
+
+	//Compatibility
+    @import "compatibility";
 }
 
 // Panel Elements
@@ -116,6 +119,3 @@
 		margin-top: 20px;
 	}
 }
-
-//Compatibility
-@import "compatibility";

@@ -12,23 +12,18 @@ type ExtendedWindow = Window & {
 }
 
 export default function syncPanelTitle() {
-	const panelTitle = __( 'Elements', 'elementor' );
-	const tabTitle = __( 'Widgets', 'elementor' );
+	const title = __( 'Elements', 'elementor' );
 
 	listenTo(
 		routeOpenEvent( 'panel/elements' ),
-		() => {
-			setPanelTitle( panelTitle );
-			setTabTitle( tabTitle );
-		}
+		() => setPanelTitle( title )
 	);
 
 	listenTo(
 		v1ReadyEvent(),
 		() => {
 			if ( isRouteActive( 'panel/elements' ) ) {
-				setPanelTitle( panelTitle );
-				setTabTitle( tabTitle );
+				setPanelTitle( title );
 			}
 		}
 	);
@@ -36,12 +31,4 @@ export default function syncPanelTitle() {
 
 function setPanelTitle( title: string ) {
 	( window as unknown as ExtendedWindow ).elementor?.getPanelView?.()?.getHeaderView?.()?.setTitle?.( title );
-}
-
-function setTabTitle( title: string ) {
-	const tab = document.querySelector( '.elementor-component-tab[data-tab="categories"]' );
-
-	if ( tab ) {
-		tab.textContent = title;
-	}
 }

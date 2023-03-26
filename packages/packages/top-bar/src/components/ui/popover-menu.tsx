@@ -11,9 +11,6 @@ export default function PopoverMenu( { children, ...props }: PopoverMenuProps ) 
 					sx: { mt: 4 },
 				} }
 				{ ...props }
-				MenuListProps={ {
-					component: 'div',
-				} }
 			>
 				{ children }
 			</Menu>

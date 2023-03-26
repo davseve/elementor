@@ -87,10 +87,10 @@ function createRegisterMenuItem<
 
 		const Component = component as ElementType;
 
-		const Filler = ( props: object ) => {
+		const Filler = () => {
 			const componentProps = useProps();
 
-			return <Component { ...props } { ...componentProps } />;
+			return <Component { ...componentProps } />;
 		};
 
 		const location = getMenuLocationId( menuName, group );

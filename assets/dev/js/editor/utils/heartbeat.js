@@ -23,19 +23,24 @@ export default class Heartbeat {
 	};
 
 	initModal() {
-		const modal = elementorCommon.dialogsManager.createWidget( 'confirm', {
+		const modal = elementorCommon.dialogsManager.createWidget( 'lightbox', {
 			headerMessage: __( 'Take Over', 'elementor' ),
-			strings: {
-				confirm: __( 'Take Over', 'elementor' ),
-				cancel: __( 'Go Back', 'elementor' ),
+		} );
+
+		modal.addButton( {
+			name: 'go_back',
+			text: __( 'Go Back', 'elementor' ),
+			callback() {
+				parent.history.go( -1 );
 			},
-			defaultOption: 'confirm',
-			onConfirm() {
+		} );
+
+		modal.addButton( {
+			name: 'take_over',
+			text: __( 'Take Over', 'elementor' ),
+			callback() {
 				wp.heartbeat.enqueue( 'elementor_force_post_lock', true );
 				wp.heartbeat.connectNow();
-			},
-			onCancel() {
-				parent.history.go( -1 );
 			},
 		} );
 

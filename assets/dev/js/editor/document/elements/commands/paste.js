@@ -135,8 +135,6 @@ export class Paste extends $e.modules.editor.document.CommandHistoryBase {
 						break;
 
 					default: {
-						const createNewElementAtTheBottomOfThePage = 'undefined' === typeof at;
-
 						// The 'default' case is widget.
 						let target;
 
@@ -152,9 +150,6 @@ export class Paste extends $e.modules.editor.document.CommandHistoryBase {
 								model: {
 									elType: 'container',
 								},
-								options: {
-									at: createNewElementAtTheBottomOfThePage ? ++index : index,
-								},
 							} );
 
 							target = [ target ];
@@ -167,7 +162,7 @@ export class Paste extends $e.modules.editor.document.CommandHistoryBase {
 								},
 								columns: 1,
 								options: {
-									at: createNewElementAtTheBottomOfThePage ? ++index : index,
+									at: ++index,
 								},
 							} );
 

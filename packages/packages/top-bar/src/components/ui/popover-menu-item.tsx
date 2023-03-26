@@ -4,6 +4,8 @@ import {
 	MenuItemProps,
 	ListItemText,
 	ListItemIcon,
+	ListItemButton,
+	ListItemButtonProps,
 	withDirection,
 } from '@elementor/ui';
 import { ArrowUpRightIcon } from '@elementor/icons';
@@ -17,6 +19,24 @@ type ExtraProps = {
 
 export type PopoverMenuItemProps = MenuItemProps & ExtraProps;
 
+const MenuItemInnerWrapper: React.FC<ListItemButtonProps> = ( { children, href, target } ) => {
+	if ( ! href ) {
+		return <>{ children }</>;
+	}
+
+	return (
+		<ListItemButton
+			component="a"
+			role="menuitem"
+			href={ href }
+			target={ target }
+			sx={ { px: 0 } }
+		>
+			{ children }
+		</ListItemButton>
+	);
+};
+
 const DirectionalArrowIcon = withDirection( ArrowUpRightIcon );
 
 export default function PopoverMenuItem( { text, icon, onClick, href, target, disabled, ...props }: PopoverMenuItemProps ) {
@@ -27,13 +47,13 @@ export default function PopoverMenuItem( { text, icon, onClick, href, target, di
 			{ ...props }
 			disabled={ disabled }
 			onClick={ onClick }
-			component={ href ? 'a' : 'div' }
-			href={ href }
-			target={ target }
+			role={ href ? 'presentation' : 'menuitem' }
 		>
-			<ListItemIcon>{ icon }</ListItemIcon>
-			<ListItemText primary={ text } />
-			{ isExternalLink && <DirectionalArrowIcon /> }
+			<MenuItemInnerWrapper href={ href } target={ target }>
+				<ListItemIcon>{ icon }</ListItemIcon>
+				<ListItemText primary={ text } />
+				{ isExternalLink && <DirectionalArrowIcon /> }
+			</MenuItemInnerWrapper>
 		</MenuItem>
 	);
 }

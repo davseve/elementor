@@ -9,9 +9,6 @@ export default function useDocumentPreviewProps() {
 	return {
 		icon: EyeIcon,
 		title: __( 'Preview Changes', 'elementor' ),
-		onClick: () => document && runCommand( 'editor/documents/preview', {
-			id: document.id,
-			force: true,
-		} ),
+		onClick: () => document && runCommand( 'editor/documents/preview', { id: document.id } ),
 	};
 }
