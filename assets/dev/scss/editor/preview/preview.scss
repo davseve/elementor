@@ -27,8 +27,6 @@
 @mixin e-grid-overlay-base {
 	padding-top: var( --padding-top );
 	padding-bottom: var( --padding-bottom );
-	padding-right: var( --padding-right );
-	padding-left: var( --padding-left );
 	display: grid;
 	position: absolute;
 	top: 0;
@@ -38,16 +36,19 @@
 	grid-template-rows: var(--e-con-grid-template-rows);
 	grid-gap: var( --gap);
 	justify-items: var(--justify-items);
+	// width: var( --width );
 }
 
 @mixin e-grid-overlay-boxed {
 	@include e-grid-overlay-base;
-
-
+	max-width: var(--content-width);
+	width: var( --width );
 }
 
 @mixin e-grid-overlay-full-width {
 	@include e-grid-overlay-base;
+	padding-right: var( --padding-right );
+	padding-left: var( --padding-left );
 	width: 100%;
 	left: 0;
 }
