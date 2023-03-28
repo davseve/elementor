@@ -3,12 +3,8 @@
 	&__page-siteLogo {
 
 		.e-app-upload-file__button {
-			color: var(--e-a-color-primary-bold);
-			border-color: var(--e-a-color-primary-bold);
-
-			&:hover {
-				background-color: $e-pink-50;
-			}
+			color: $platform-primary;
+			border-color: $platform-primary;
 		}
 	}
 
@@ -35,13 +31,11 @@
 		&-container {
 			position: relative;
 			margin-top: 3rem;
-			min-height: 120px;
+			height: 220px;
 			width: fit-content;
 			display: flex;
 			align-items: center;
-			justify-content: center;
 			min-width: 220px;
-			border: 1px solid $e-gray-200;
 
 			img {
 				height: auto;

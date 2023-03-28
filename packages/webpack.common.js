@@ -14,16 +14,10 @@ const packages = [
 	...readdirSync( path.resolve( __dirname, 'packages' ), { withFileTypes: true } )
 		.filter( ( dirent ) => dirent.isDirectory() )
 		.map( ( dirent ) => dirent.name )
-		.map( ( name ) => {
-			const packageJson = require( path.resolve( __dirname, `./packages/${ name }/package.json` ) );
-			const type = packageJson.elementor?.type;
-
-			return {
-				name,
-				type,
-				path: path.resolve( __dirname, `./packages/${ name }/src` ),
-			};
-		} ),
+		.map( ( name ) => ( {
+			name,
+			path: path.resolve( __dirname, `./packages/${ name }/src` ),
+		} ) ),
 	// Elementor packages that lives outside the monorepo.
 	{
 		name: 'ui',
@@ -88,14 +82,7 @@ module.exports = {
 		extensions: [ '.tsx', '.ts', '.js', '.jsx' ],
 	},
 	plugins: [
-		new ExtractDependenciesWebpackPlugin( {
-			handlePrefix: 'elementor-packages',
-			apps: packages.filter( ( entry ) => 'app' === entry.type ).map( ( entry ) => entry.name ),
-			extensions: packages.filter( ( entry ) => 'extension' === entry.type ).map( ( entry ) => entry.name ),
-			i18n: {
-				domain: 'elementor',
-			},
-		} ),
+		new ExtractDependenciesWebpackPlugin(),
 	],
 	output: {
 		clean: true,

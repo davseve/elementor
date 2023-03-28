@@ -35,7 +35,7 @@
 
 	.eicon-loading {
 		font-size: 25px;
-		color: var(--e-a-color-txt-accent);
+		color: var(--e-a-color-txt-muted);
 	}
 }
 
@@ -95,10 +95,6 @@
 		&:hover {
 			background-color: var(--e-a-bg-hover);
 			border-color: var(--e-a-border-color-bold);
-
-			> .eicon-lock {
-				color: var(--e-a-color-accent);
-			}
 		}
 
 		.icon {

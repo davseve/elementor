@@ -6,8 +6,5 @@
 	},
 	"peerDependencies": {
 		"react": "17.x"
-	},
-	"elementor": {
-		"type": "extension"
 	}
 }

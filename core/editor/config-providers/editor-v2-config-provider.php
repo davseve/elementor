@@ -8,54 +8,77 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 class Editor_V2_Config_Provider implements Config_Provider_Interface {
-	const PACKAGE_TYPE_APP = 'app';
-	const PACKAGE_TYPE_EXTENSION = 'extension';
-	const PACKAGE_TYPE_UTIL = 'util';
+	const APP_PACKAGE = 'editor';
+
+	const EXTENSION_PACKAGES = [
+		'documents',
+		'documents-ui',
+		'elements-panel',
+		'finder',
+		'help',
+		'history',
+		'responsive',
+		'site-settings',
+		'structure',
+		'theme-builder',
+		'top-bar',
+		'user-preferences',
+	];
+
+	const UTIL_PACKAGES = [
+		'icons',
+		'locations',
+		'ui',
+		'v1-adapters',
+		'store',
+	];
 
 	/**
-	 * Cached packages data.
+	 * Cached script assets.
 	 *
 	 * @var Collection
 	 */
-	private $packages_data;
+	private $packages_script_assets;
 
 	public function get_script_configs() {
-		$packages_data = $this->get_packages_data();
+		$packages_script_configs = $this->get_packages_script_assets()
+			->map( function ( $script_asset, $package_name ) {
+				return [
+					'handle' => $script_asset['handle'],
+					'src' => "{{ELEMENTOR_ASSETS_URL}}js/packages/{$package_name}{{MIN_SUFFIX}}.js",
+					'deps' => $script_asset['deps'],
+					'i18n' => [
+						'domain' => 'elementor',
+						'replace_requested_file' => true,
+					],
+				];
+			} );
 
-		$apps_handles = $packages_data
-			->filter( function ( $package_data ) {
-				return static::PACKAGE_TYPE_APP === $package_data['type'];
-			} )
-			->map( function ( $package_data ) {
-				return $package_data['handle'];
-			} )
-			->values();
+		$editor_script_config = $packages_script_configs->get( static::APP_PACKAGE );
 
 		$loader_script_config = [
 			'handle' => 'elementor-editor-loader-v2',
 			'src' => '{{ELEMENTOR_ASSETS_URL}}js/editor-loader-v2{{MIN_SUFFIX}}.js',
 			'deps' => array_merge(
 				[ 'elementor-editor' ],
-				$apps_handles
+				$editor_script_config ? [ $editor_script_config['handle'] ] : []
 			),
 		];
 
 		return array_merge(
 			Editor_Common_Configs::get_script_configs(),
-			$packages_data->values(),
+			$packages_script_configs->values(),
 			[ $loader_script_config ]
 		);
 	}
 
 	public function get_script_handles_to_enqueue() {
-		$types_to_enqueue = [ static::PACKAGE_TYPE_EXTENSION ];
-
-		return $this->get_packages_data()
-			->filter( function ( $package_data ) use ( $types_to_enqueue ) {
-				return in_array( $package_data['type'], $types_to_enqueue, true );
+		return $this->get_packages_script_assets()
+			->filter( function ( $script_asset, $package_name ) {
+				return in_array( $package_name, static::EXTENSION_PACKAGES, true );
 			} )
-			->map( function ( $package_data ) {
-				return $package_data['handle'];
+			->map( function ( $script_asset ) {
+				return $script_asset['handle'];
 			} )
 			// Must be last.
 			->push( 'elementor-editor-loader-v2' )
@@ -106,29 +129,26 @@ class Editor_V2_Config_Provider implements Config_Provider_Interface {
 		return Editor_Common_Configs::get_additional_template_paths();
 	}
 
-	private function get_packages_data() {
-		if ( ! $this->packages_data ) {
-			// Loading the file that is responsible for registering the packages in the filter.
-			require_once ELEMENTOR_ASSETS_PATH . 'js/packages/loader.php';
+	private function get_packages_script_assets() {
+		if ( ! $this->packages_script_assets ) {
+			$this->packages_script_assets = Collection::make( [ static::APP_PACKAGE ] )
+				->merge( static::EXTENSION_PACKAGES )
+				->merge( static::UTIL_PACKAGES )
+				->map_with_keys( function ( $package_name ) {
+					$assets_path = ELEMENTOR_ASSETS_PATH;
+					$script_asset_path = "{$assets_path}js/packages/{$package_name}.asset.php";
 
-			$packages_data = apply_filters( 'elementor/editor-v2/packages/config', [] );
+					if ( ! file_exists( $script_asset_path ) ) {
+						return [];
+					}
 
-			$this->packages_data = Collection::make( $packages_data )
-				->map_with_keys( function ( $data, $name ) {
-					$type = $data['type'] ?? static::PACKAGE_TYPE_UTIL;
+					/** @var array{ handle: string, deps: string[] } $script_asset */
+					$script_asset = require $script_asset_path;
 
-					return [
-						$name => [
-							'handle' => $data['handle'],
-							'src' => $data['src'],
-							'deps' => $data['deps'],
-							'i18n' => $data['i18n'],
-							'type' => $type,
-						],
-					];
+					return [ $package_name => $script_asset ];
 				} );
 		}
 
-		return $this->packages_data;
+		return $this->packages_script_assets;
 	}
 }
