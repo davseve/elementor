@@ -49,4 +49,30 @@ test.describe( 'Container tests', () => {
 		const container = await frame.locator( '.e-grid .e-con-inner' );
 		await expect( container ).toHaveCSS( 'gap', '20px 10px' );
 	} );
+
+	test.only( 'Grid outline works only on focused container', async ( { page }, testInfo ) => {
+		// Arrange.
+		const wpAdmin = new WpAdminPage( page, testInfo ),
+			editor = await wpAdmin.useElementorCleanPost(),
+			frame = editor.getPreviewFrame();
+
+		// Add container.
+		await editor.addElement( { elType: 'container' }, 'document' );
+
+		// Set container type to grid.
+		await editor.setSelectControlValue( 'container_type', 'grid' );
+
+		// Turn on outline control.
+		await editor.setSwitcherControlValue( 'outline', true );
+
+		// Focus on the container.
+		await frame( '#elementor-navigator__elements .elementor-navigator__elements  .elementor-navigator__element:nth-child(1) .elementor-navigator__item' ).click();
+
+		// Close Navigator
+		await editor.closeNavigatorIfOpen();
+
+		// Assert.
+		const container = await frame.locator( '.e-grid .e-con-inner' );
+		await expect( container ).toHaveCSS( 'gap', '20px 10px' );
+	} );
 } );

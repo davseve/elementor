@@ -1,8 +1,6 @@
 const BOXED = 'boxed';
 
 export default class GridOverlay extends elementorModules.frontend.handlers.Base {
-	containerWidthType = 'full_width';
-
 	isActive() {
 		return elementorFrontend.isEditMode();
 	}
@@ -10,13 +8,14 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	getDefaultSettings() {
 		return {
 			selectors: {
-				editableContainer: '.elementor-element-editable',
+				container: '.elementor-element-editable',
 				gridOverlay: '.e-grid-overlay',
+				directChildGridOverlay: ':scope > .e-grid-overlay',
 			},
 			classes: {
 				overlay: 'e-grid-overlay',
 				overlayItem: 'e-grid-overlay-item',
-				editableContainer: 'elementor-element-editable',
+				container: 'elementor-element-editable',
 			},
 		};
 	}
@@ -26,8 +25,9 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 			container = this.$element[ 0 ];
 
 		return {
-			editableContainer: container,
+			container,
 			gridOverlay: container.querySelector( selectors.gridOverlay ),
+			directChildGridOverlay: container.querySelector( selectors.directChildGridOverlay ),
 		};
 	}
 
@@ -38,7 +38,6 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	}
 
 	bindEvents() {
-		// elementorFrontend.addListenerOnce( this.$element.data( 'model-cid' ), 'resize', this.addLayoutOverlay );
 		elementor.listenTo( elementor.channels.deviceMode, 'change', () => this.onDeviceModeChange() );
 	}
 
@@ -49,50 +48,39 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 			return;
 		}
 
-		this.createLayoutOverlay( container );
+		this.removeExistingOverlay();
+		this.createOverlayParentContainer();
 	}
 
 	getContainer() {
 		const elementSettings = this.getElementSettings();
 
-		this.removeExistingOverlay();
 		if ( elementSettings.grid_overlay && '' !== elementSettings.grid_overlay ) {
-			return this.getCorrectContainer( elementSettings, this.elements.editableContainer );
+			return this.getCorrectContainer( elementSettings, this.elements.container );
 		}
 	}
 
 	removeExistingOverlay() {
-		if ( this.elements.gridOverlay ) {
-			this.elements.gridOverlay.remove();
+		if ( this.elements.container.querySelector( ':scope > .e-grid-overlay' ) ) {
+			this.elements.container.querySelector( ':scope > .e-grid-overlay' ).remove();
 		}
 	}
 
-	createLayoutOverlay( container ) {
-		this.createOverlayParentContainer( container );
-	}
-
-	createOverlayParentContainer( container ) {
-		const elementSettings = this.getElementSettings(),
-			leftZeroPosition = 0,
-			leftPosition = this.getContainerPosition( container ).left,
-			leftBoxedPosition = leftPosition - this.getComputedStyle( container, '--padding-left', true ) + 'px',
-			gridOverlayLeftPosition = this.containerWidthType === BOXED ? leftPosition : 0,
-			ParentContainer = this.containerWidthType === BOXED ? container.querySelectorAll( '.e-con-inner' ) : container;
-
+	createOverlayParentContainer() {
 		const gridOverlayContainer = document.createElement( 'div' );
 
 		gridOverlayContainer.classList.add( 'e-grid-overlay' );
-		container.appendChild( gridOverlayContainer );
-		this.createOverlayCells( gridOverlayContainer, container );
+		this.elements.container.appendChild( gridOverlayContainer );
+
+		this.createOverlayChildCells( gridOverlayContainer );
 	}
 
-	getContainerPosition( container ) {
-		return container.getBoundingClientRect();
-	}
-
-	createOverlayCells( gridOverlayContainer, container ) {
-		const numberOfElementsInCurrentContainer = container.querySelectorAll( ':scope >.elementor-element' ).length,
-			numberOfCells = this.calculateNumberOfItemsInGrid() > numberOfElementsInCurrentContainer ? this.calculateNumberOfItemsInGrid() : numberOfElementsInCurrentContainer
+	createOverlayChildCells( gridOverlayContainer ) {
+		const numberOfElementsInCurrentContainer = this.elements.container.querySelectorAll( ':scope >.elementor-element' ).length,
+			calculatedCellsInGrid = this.calculateNumberOfItemsInGrid(),
+			numberOfCells = calculatedCellsInGrid > numberOfElementsInCurrentContainer
+				? calculatedCellsInGrid
+				: this.calculateNumberOfItemsInGridByInnerElements( gridOverlayContainer, numberOfElementsInCurrentContainer );
 
 		for ( let i = 0; i < numberOfCells; i++ ) {
 			const cell = document.createElement( 'div' );
@@ -103,33 +91,32 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 	}
 
 	calculateNumberOfItemsInGrid() {
-		const elementSettings = this.getElementSettings(),
-			getCurrentDeviceName = 'desktop' === elementorFrontend.getCurrentDeviceMode() ? '' : '_' + elementorFrontend.getCurrentDeviceMode(),
-			currentDeviceGridColumns = elementSettings[ 'grid_columns_grid' + getCurrentDeviceName ].size,
-			currentDeviceGridRows = elementSettings[ 'grid_rows_grid' + getCurrentDeviceName ].size;
+		const gridDimensions = this.getGridDimensions();
 
-		return currentDeviceGridRows * currentDeviceGridColumns;
+		return gridDimensions.currentDeviceGridColumns * gridDimensions.currentDeviceGridRows;
 	}
 
-	getComputedStyle( container, cssProp, cleanNumber = false ) {
-		const cssObj = window.getComputedStyle( container, null ),
-			cssPropertyValue = cssObj.getPropertyValue( cssProp );
+	calculateNumberOfItemsInGridByInnerElements( gridOverlayContainer, numberOfElements ) {
+		const gridDimensions = this.getGridDimensions();
+		let numberOfCells = numberOfElements;
 
-		if ( cleanNumber ) {
-			return parseInt( cssPropertyValue );
+		while ( numberOfCells % gridDimensions.currentDeviceGridColumns !== 0 ) {
+			numberOfCells++;
 		}
 
-		return cssPropertyValue;
+		const numberOfRows = numberOfCells / gridDimensions.currentDeviceGridColumns;
+		gridOverlayContainer.style.gridTemplateRows = `repeat( ${ numberOfRows } , 1fr)`;
+
+		return numberOfCells;
 	}
 
 	getCorrectContainer( elementSettings ) {
 		let correctContainer;
 
 		if ( BOXED === elementSettings.content_width ) {
-			this.containerWidthType = elementSettings.content_width;
-			correctContainer = this.elements.editableContainer.querySelector( '.e-con-inner' );
+			correctContainer = this.elements.container.querySelector( ':scope > .e-con-inner' );
 		} else {
-			correctContainer = this.elements.editableContainer;
+			correctContainer = this.elements.container;
 		}
 
 		return correctContainer;
@@ -140,12 +127,6 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 		const propsThatTriggerGridLayoutCalculation = [
 			'grid_rows_grid',
 			'grid_columns_grid',
-			// 'grid_gaps',
-			// 'padding',
-			// 'width',
-			// 'boxed_width',
-			// 'boxed_height',
-			// 'min_height',
 			'container_type',
 		];
 
@@ -164,6 +145,16 @@ export default class GridOverlay extends elementorModules.frontend.handlers.Base
 		} );
 
 		return propsThatTriggerGridLayoutCalculation;
+	}
+
+	getGridDimensions() {
+		const elementSettings = this.getElementSettings(),
+			getCurrentDeviceName = 'desktop' === elementorFrontend.getCurrentDeviceMode() ? '' : '_' + elementorFrontend.getCurrentDeviceMode();
+
+		return {
+			currentDeviceGridColumns: elementSettings[ 'grid_columns_grid' + getCurrentDeviceName ].size,
+			currentDeviceGridRows: elementSettings[ 'grid_rows_grid' + getCurrentDeviceName ].size,
+		};
 	}
 
 	getActiveBreakpointsList() {

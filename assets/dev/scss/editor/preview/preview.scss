@@ -23,7 +23,6 @@
 @import "../flex-icons.scss";
 
 // mixins
-
 @mixin e-grid-overlay-base {
 	padding-top: var( --padding-top );
 	padding-bottom: var( --padding-bottom );
@@ -36,12 +35,11 @@
 	grid-template-rows: var(--e-con-grid-template-rows);
 	grid-gap: var( --gap);
 	justify-items: var(--justify-items);
-	// width: var( --width );
 }
 
 @mixin e-grid-overlay-boxed {
 	@include e-grid-overlay-base;
-	max-width: var(--content-width);
+	max-width: calc( var(--content-width ) - ( (var( --padding-right ) + var( --padding-left ) ) / 2 ) * 1.6 );
 	width: var( --width );
 }
 
@@ -109,7 +107,7 @@ html.elementor-html {
 		}
 
 		.e-grid-overlay-item {
-			border: 1px dashed pink;
+			border: 1px dashed #{$e-gray-300};
 			pointer-events: none;
 		}
 	}

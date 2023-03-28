@@ -22,8 +22,8 @@ class Group_Control_Grid_Container extends Group_Control_Base {
 			'separator' => 'before',
 		];
 
-		$fields['overlay'] = [
-			'label' => esc_html__( 'Layout', 'elementor' ),
+		$fields['outline'] = [
+			'label' => esc_html__( 'Outline', 'elementor' ),
 			'type' => Controls_Manager::SWITCHER,
 			'label_on' => esc_html__( 'SHOW', 'elementor' ),
 			'label_off' => esc_html__( 'HIDE', 'elementor' ),
