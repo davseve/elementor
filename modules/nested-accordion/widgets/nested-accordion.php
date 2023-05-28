@@ -129,6 +129,39 @@ class Nested_Accordion extends Widget_Nested_Base {
 		] );
 
 		$this->end_controls_section();
+
+		$this->start_controls_section( 'interactions', [
+			'label' => esc_html__( 'Interactions', 'elementor' ),
+		] );
+
+		$this->add_control(
+			'default_state',
+			[
+				'label' => esc_html__( 'Default State', 'elementor' ),
+				'type' => Controls_Manager::SELECT,
+				'options' => [
+					'first_expended' => esc_html__( 'First expended', 'elementor' ),
+					'all_expended' => esc_html__( 'All expended', 'elementor' ),
+				],
+				'default' => 'first_expended',
+			]
+		);
+
+		$this->add_control(
+			'max_items_expended',
+			[
+				'label' => esc_html__( 'Max Items Expended', 'elementor' ),
+				'type' => Controls_Manager::SELECT,
+				'options' => [
+					'one' => esc_html__( 'One', 'elementor' ),
+					'multiple' => esc_html__( 'Multiple', 'elementor' ),
+				],
+				'default' => 'one',
+				'frontend_available' => true,
+			]
+		);
+
+		$this->end_controls_section();
 	}
 
 	protected function render() {
@@ -143,6 +176,11 @@ class Nested_Accordion extends Widget_Nested_Base {
 			$item_classes = [ 'e-n-accordion-item', 'e-normal' ];
 			$item_id = empty( $item['element_css_id'] ) ? 'e-n-accordion-item-' . $id_int : $item['element_css_id'];
 			$item_title = $item['item_title'];
+			$is_first_item_expanded = '';
+
+			if ( 0 === $index && 'first_expended' === $settings['default_state'] ) {
+				$is_first_item_expanded = 'open';
+			}
 
 			$this->add_render_attribute( $item_setting_key, [
 				'id' => $item_id,
@@ -156,7 +194,7 @@ class Nested_Accordion extends Widget_Nested_Base {
 			$this->print_child( $index );
 			$item_content = ob_get_clean();
 
-			$items_title_html .= "\t<details {$title_render_attributes}>";
+			$items_title_html .= "\t<details {$title_render_attributes} {$is_first_item_expanded}>";
 			$items_title_html .= "\t\t<summary class='e-n-accordion-item-title'>{$item_title}</summary>";
 			$items_title_html .= "\t\t{$item_content}";
 			$items_title_html .= "\t</details>";
@@ -180,11 +218,16 @@ class Nested_Accordion extends Widget_Nested_Base {
 				itemUid = elementUid + itemCount,
 				itemWrapperKey = itemUid,
 				itemTitleKey = 'item-' + itemUid;
+				isFirstItemExpanded = '';
 
 			if ( '' !== item.element_css_id ) {
 				itemId = item.element_css_id;
 			} else {
 				itemId = 'e-n-accordion-item-' + itemUid;
+			}
+
+			if ( 0 === index && 'first_expended' === settings.default_state ) {
+				isFirstItemExpanded = 'open';
 			}
 
 			view.addRenderAttribute( itemWrapperKey, {
@@ -198,7 +241,7 @@ class Nested_Accordion extends Widget_Nested_Base {
 
 			#>
 
-			<details {{{ view.getRenderAttributeString( itemWrapperKey ) }}}>
+			<details {{{ view.getRenderAttributeString( itemWrapperKey ) }}} {{{isFirstItemExpanded}}}>
 				<summary {{{ view.getRenderAttributeString( itemTitleKey ) }}}>{{{ item.item_title }}}</summary>
 			</details>
 			<# } ); #>
