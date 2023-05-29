@@ -25,7 +25,7 @@ export default class NestedAccordion extends Base {
 		const { max_items_expended: maxItemsExpended } = this.getElementSettings();
 
 		if ( 'one' === maxItemsExpended ) {
-			this.elements.$titles.on( 'click', this.maxItemsExpanded );
+			this.elements.$titles.on( 'click', this.maxItemsExpanded.bind( this ) );
 		}
 	}
 
@@ -35,9 +35,14 @@ export default class NestedAccordion extends Base {
 
 	onInit( ...args ) {
 		super.onInit( ...args );
+		const { max_items_expended: maxItemsExpended } = this.getElementSettings();
 
 		if ( elementorFrontend.isEditMode() ) {
 			this.interlaceContainers();
+		}
+
+		if ( 'one' === maxItemsExpended ) {
+			this.deactivateAllItems();
 		}
 	}
 
@@ -49,26 +54,21 @@ export default class NestedAccordion extends Base {
 		} );
 	}
 
-	maxItemsExpanded() {
-		// const { $titles } = this.getDefaultElements();
-		this.elements.$titles = $titles;
-		// this.deactivateAllItems();
-		$titles.each( ( index, title ) => {
-			// let item = title.parentNode;
-			// if ( item !== this.parentNode ) {
-			// 	item.removeAttribute( 'open' );
-			// }
+	maxItemsExpanded( event ) {
+		const { $titles, $items } = this.getDefaultElements(),
+			clickedItem = event ? event.target : $titles[ 0 ],
+			itemIndex = $items.index( clickedItem );
 
-			console.log( this )
-		} );
-		console.log( 'maxItemsExpanded' );
+		this.deactivateAllItems( clickedItem );
 	}
 
-	deactivateAllItems() {
-		// const { $items } = this.getDefaultElements();
+	deactivateAllItems( clickedItem ) {
+		const { $titles, $items } = this.getDefaultElements();
 
-		$items.each( ( index, item ) => {
-			item.removeAttribute( 'open' );
+		$titles.each( ( index, title ) => {
+			if ( title !== clickedItem ) {
+				$items[ index ].removeAttribute( 'open' );
+			}
 		} );
 	}
 }

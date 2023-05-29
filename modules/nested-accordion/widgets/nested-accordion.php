@@ -156,6 +156,9 @@ class Nested_Accordion extends Widget_Nested_Base {
 					'one' => esc_html__( 'One', 'elementor' ),
 					'multiple' => esc_html__( 'Multiple', 'elementor' ),
 				],
+				'condition' => [
+					'default_state' => 'first_expended',
+				],
 				'default' => 'one',
 				'frontend_available' => true,
 			]
