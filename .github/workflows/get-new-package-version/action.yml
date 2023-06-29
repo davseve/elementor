@@ -12,11 +12,14 @@ runs:
     - shell: bash
       run: |
             CLEAN_PACKAGE_VERSION=$(node -p "require('./package.json').version")
-            # If the channel is not `daily-cloud`, than add `-rc` to the the package version
-            if [[ ${{ inputs.CHANNEL }} != "daily-cloud" ]]; then
-                PACKAGE_VERSION=${CLEAN_PACKAGE_VERSION}-${{ inputs.CHANNEL }}-rc
-            else
+
+            # This condition must be changed before we create the new hostintg release
+            if [[ ${{ inputs.CHANNEL }} == "cloud" ]]; then
                 PACKAGE_VERSION=${CLEAN_PACKAGE_VERSION}-${{ inputs.CHANNEL }}
+            else
+                PACKAGE_VERSION=${CLEAN_PACKAGE_VERSION}-${{ inputs.CHANNEL }}-rc
             fi
+
             echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
             echo "CLEAN_PACKAGE_VERSION=${CLEAN_PACKAGE_VERSION}" >> $GITHUB_ENV
+
