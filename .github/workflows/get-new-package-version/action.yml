@@ -13,11 +13,11 @@ runs:
       run: |
             CLEAN_PACKAGE_VERSION=$(node -p "require('./package.json').version")
 
-            # The condition must be changed before we create the new hostintg release
-            if [[ ${{ inputs.CHANNEL }} != "cloud" ]]; then
-                PACKAGE_VERSION=${CLEAN_PACKAGE_VERSION}-${{ inputs.CHANNEL }}-rc
-            else
+            # This condition must be changed before we create the new hostintg release
+            if [[ ${{ inputs.CHANNEL }} == "cloud" ]]; then
                 PACKAGE_VERSION=${CLEAN_PACKAGE_VERSION}-${{ inputs.CHANNEL }}
+            else
+                PACKAGE_VERSION=${CLEAN_PACKAGE_VERSION}-${{ inputs.CHANNEL }}-rc
             fi
 
             echo "PACKAGE_VERSION=${PACKAGE_VERSION}" >> $GITHUB_ENV
