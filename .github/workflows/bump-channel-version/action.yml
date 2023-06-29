@@ -25,7 +25,7 @@ runs:
             sed -i -E "s/Version: .*/Version: ${ELEMENTOR_CHANNEL_PACKAGE_VERSION}/g" elementor.php
             sed -i -E "s/ELEMENTOR_VERSION', '.*'/ELEMENTOR_VERSION', '${ELEMENTOR_CHANNEL_PACKAGE_VERSION}'/g" elementor.php
 
-            echo "ELEMENTOR_CHANNEL_PACKAGE_VERSION=${ELEMENTOR_CHANNEL_PACKAGE_VERSION}"
+            echo "ELEMENTOR_CHANNEL_PACKAGE_VERSION=${ELEMENTOR_CHANNEL_PACKAGE_VERSION}" >> $GITHUB_ENV
             echo "NEW_CHANNEL_VERSION=${NEW_CHANNEL_VERSION}"
 
             if [[ ${{ inputs.CHANNEL }} == "beta" ]]; then
