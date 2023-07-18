@@ -18,7 +18,7 @@ jobs:
           ref: ${{ github.ref }}
       - name: Get Configuration
         id: configuration
-        uses: maork-elementor/json-to-variables@main
+        uses: rgarcia-phi/json-to-variables@v1.1.0
         with:
           filename: './.github/workflows/config.json'
           prefix: config
