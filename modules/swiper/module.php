@@ -38,12 +38,23 @@ class Module extends \Elementor\Core\Base\Module {
 		return 'swiper';
 	}
 
+
 	public static function swiper_active_version() {
 		return get_option( self::SWIPER_SETTINGS_OPTION_NAME );
 	}
 
 	public static function swiper_css_class() {
-		return self::SWIPER_VERSION_5_3_6 === self::swiper_active_version() ? 'swiper-container' : 'swiper';
+		return self::SWIPER_VERSION_8_4_5 === self::swiper_active_version() ? 'swiper' : 'swiper-container';
+	}
+
+	public static function swiper_assets_path() {
+		$path = 'lib/swiper/';
+
+		if ( self::SWIPER_VERSION_8_4_5 === self::swiper_active_version() ) {
+			$path .= 'v8/';
+		}
+
+		return $path;
 	}
 
 	/**
@@ -66,10 +77,10 @@ class Module extends \Elementor\Core\Base\Module {
 						self::SWIPER_VERSION_5_3_6 => esc_html__( '5.3.6', 'elementor' ),
 						self::SWIPER_VERSION_8_4_5 => esc_html__( '8.4.5', 'elementor' ),
 					],
-					'desc' => sprintf( esc_html__(
-						'Create pixel perfect layouts by placing elements in a customizable grid. Activate to add the CSS Grid option to container elements. %1$sLearn more%2$s',
+					'desc' => esc_html__(
+						'This library powers Elementor\'s Carousels, If you’re experiencing any related issues - try switching to an older version.',
 						'elementor'
-					), '<a target="_blank" href="https://go.elementor.com/wp-dash-grid-container/">', '</a>'),
+					),
 				],
 			]
 		);

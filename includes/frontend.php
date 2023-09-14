@@ -562,7 +562,7 @@ class Frontend extends App {
 
 		wp_register_style(
 			'swiper',
-			$this->get_css_assets_url( 'swiper', $this->e_swiper_asset_path . 'css/' ),
+			$this->get_css_assets_url( 'swiper', 'assets/' . $this->e_swiper_asset_path . 'css/' ),
 			[],
 			$this->e_swiper_version
 		);
@@ -1414,7 +1414,8 @@ class Frontend extends App {
 				'assets' => $assets_url,
 			],
 			'swiperClass' => Swiper::swiper_css_class(),
-			'swiperActiveVersion' => Swiper::swiper_active_version(),
+			'swiperActiveVersion' => $this->e_swiper_version,
+			'swiperAssetsPath' => $this->e_swiper_asset_path,
 		];
 
 		$settings['settings'] = SettingsManager::get_settings_frontend_config();
