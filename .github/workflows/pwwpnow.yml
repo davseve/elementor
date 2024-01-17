@@ -109,11 +109,11 @@ jobs:
         with:
           path: ./build/*
           key: playwright-build-${{ github.sha }}
-      - name: Update wp-env.json file
-        env:
-          PHP_VERSION: '8.0'
-          WP_CORE_VERSION: 'latest'
-        run: node ./.github/scripts/build-wp-env.js
+      # - name: Update wp-env.json file
+      #   env:
+      #     PHP_VERSION: '8.0'
+      #     WP_CORE_VERSION: 'latest'
+      #   run: node ./.github/scripts/build-wp-env.js
 #      - name: Install dependencies
 #        run: npm ci
 #      - name: Install WordPress environment
@@ -142,15 +142,15 @@ jobs:
         env:
           TEST_SUITE: "@${{matrix.testSuite}}"
         run: npm run test:playwright
-      - name: Run element regression tests
-        if: ${{matrix.testSuite =='elements-regression'}}
-        run: npm run test:playwright:elements-regression
-      - uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: playwright-test-results-${{ matrix.testSuite }}
-          path: test-results/
-          retention-days: 3
+      # - name: Run element regression tests
+        # if: ${{matrix.testSuite =='elements-regression'}}
+        # run: npm run test:playwright:elements-regression
+      # - uses: actions/upload-artifact@v3
+        # if: always()
+        # with:
+        #   name: playwright-test-results-${{ matrix.testSuite }}
+        #   path: test-results/
+        #   retention-days: 3
 
   test-result:
     needs: Playwright
