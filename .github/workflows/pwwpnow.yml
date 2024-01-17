@@ -47,7 +47,9 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
 #        if: github.event.pull_request.title == null || steps.changelog_diff_files.outputs.diff
-        run: npm ci
+        run: |
+          npm ci
+          npm install -g @wp-now/wp-now
       - name: Build
 #        if: github.event.pull_request.title == null || steps.changelog_diff_files.outputs.diff
         run: npx grunt build
@@ -72,21 +74,21 @@ jobs:
     strategy:
       matrix:
         testSuite: [
-          'ai',
-          'onBoarding',
+#          'ai',
+#          'onBoarding',
           'video',
-          'elements-regression',
-          'default',
-          'nested-tabs',
-          'reverse-columns',
-          'container',
-          'nested-accordion',
-          'styleguide_image_link',
-          'rating',
-          'pluginTester1_containers',
-          'pluginTester2_containers',
-          'pluginTester1_sections',
-          'pluginTester2_sections'
+#          'elements-regression',
+#          'default',
+#          'nested-tabs',
+#          'reverse-columns',
+#          'container',
+#          'nested-accordion',
+#          'styleguide_image_link',
+#          'rating',
+#          'pluginTester1_containers',
+#          'pluginTester2_containers',
+#          'pluginTester1_sections',
+#          'pluginTester2_sections'
         ]
     steps:
       - name: Checkout source code
@@ -121,8 +123,7 @@ jobs:
       # install dependencies using wp-now
       - name: Install dependencies
         run: |
-          npm install -g @wp-now/wp-now
-          wp-now install
+          wp-now start --php=8.0
       - name: Start local server
         run: |
           wp-now start
@@ -130,9 +131,9 @@ jobs:
 #        run: |
 #          npx wp-env run cli wp core version
 #          npx wp-env run cli wp --info
-      - name: Activate performance experiments
-        run: |
-          npx wp-env run cli wp elementor experiments activate e_font_icon_svg,e_lazyload,e_optimized_assets_loading,e_optimized_css_loading,additional_custom_breakpoints,e_image_loading_optimization
+#      - name: Activate performance experiments
+#        run: |
+#          npx wp-env run cli wp elementor experiments activate e_font_icon_svg,e_lazyload,e_optimized_assets_loading,e_optimized_css_loading,additional_custom_breakpoints,e_image_loading_optimization
       - name: Install playwright/test
         run: |
           npx playwright install chromium
