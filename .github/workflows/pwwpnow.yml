@@ -116,6 +116,8 @@ jobs:
         run: npm i
       - name: Install WordPress environment
         run: |
+          pwd
+          ls -la
           npm run wp-now start --php=8.0 --path=home/runner/work/elementor/
           npm run test:setup:playwright
       - name: Install playwright/test
