@@ -107,7 +107,6 @@ jobs:
         with:
           path: ./build/*
           key: playwright-build-${{ github.sha }}
-        run: node ./.github/scripts/build-wp-env.js
       - name: Install dependencies
         run: npm i
       - name: Install WordPress environment
