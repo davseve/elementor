@@ -107,6 +107,11 @@ jobs:
         with:
           path: ./build/*
           key: playwright-build-${{ github.sha }}
+      - name: Install wp-cli
+        run: |
+          curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+          chmod +x wp-cli.phar
+          sudo mv wp-cli.phar /usr/local/bin/wp
       - name: Install dependencies
         run: npm i
       - name: Install WordPress environment
