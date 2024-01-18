@@ -16,9 +16,6 @@ jobs:
   build-plugin:
     name: Build plugin
     runs-on: ubuntu-latest
-#    if: startsWith( github.repository, 'elementor/' )
-#    outputs:
-#      changelog_diff: ${{ steps.changelog_diff_files.outputs.diff }}
     steps:
       - name: Checkout source code
         uses: actions/checkout@v3
@@ -116,21 +113,10 @@ jobs:
       #   run: node ./.github/scripts/build-wp-env.js
      - name: Install dependencies
        run: npm i
-#      - name: Install WordPress environment
-#        run: |
-#          npm run start-local-server
-#          npm run test:setup:playwright
-      # install dependencies using wp-now
       - name: Start local server
         run: |
-          wp-now start --php=8.0
-#      - name: WordPress debug information
-#        run: |
-#          npx wp-env run cli wp core version
-#          npx wp-env run cli wp --info
-#      - name: Activate performance experiments
-#        run: |
-#          npx wp-env run cli wp elementor experiments activate e_font_icon_svg,e_lazyload,e_optimized_assets_loading,e_optimized_css_loading,additional_custom_breakpoints,e_image_loading_optimization
+          npm run wp-now start --php=8.0
+          npm run test:setup:playwright
       - name: Install playwright/test
         run: |
           npx playwright install chromium
@@ -139,15 +125,6 @@ jobs:
         env:
           TEST_SUITE: "@${{matrix.testSuite}}"
         run: npm run test:playwright
-      # - name: Run element regression tests
-        # if: ${{matrix.testSuite =='elements-regression'}}
-        # run: npm run test:playwright:elements-regression
-      # - uses: actions/upload-artifact@v3
-        # if: always()
-        # with:
-        #   name: playwright-test-results-${{ matrix.testSuite }}
-        #   path: test-results/
-        #   retention-days: 3
 
   test-result:
     needs: Playwright
