@@ -107,24 +107,20 @@ jobs:
         with:
           path: ./build/*
           key: playwright-build-${{ github.sha }}
-      - name: Update wp-env.json file
-        env:
-          PHP_VERSION: '8.0'
-          WP_CORE_VERSION: 'latest'
         run: node ./.github/scripts/build-wp-env.js
       - name: Install dependencies
         run: npm i
       - name: Install WordPress environment
         run: |
-          npm run start-local-server
+          npm run wp-now start --php=8.0
           npm run test:setup:playwright
-      - name: WordPress debug information
-        run: |
-          npx wp-env run cli wp core version
-          npx wp-env run cli wp --info
-      - name: Activate performance experiments
-        run: |
-          npx wp-env run cli wp elementor experiments activate e_font_icon_svg,e_lazyload,e_optimized_assets_loading,e_optimized_css_loading,additional_custom_breakpoints,e_image_loading_optimization
+#      - name: WordPress debug information
+#        run: |
+#          npx wp-env run cli wp core version
+#          npx wp-env run cli wp --info
+#      - name: Activate performance experiments
+#        run: |
+#          npx wp-env run cli wp elementor experiments activate e_font_icon_svg,e_lazyload,e_optimized_assets_loading,e_optimized_css_loading,additional_custom_breakpoints,e_image_loading_optimization
       - name: Install playwright/test
         run: |
           npx playwright install chromium
