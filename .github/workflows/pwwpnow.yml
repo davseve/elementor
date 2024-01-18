@@ -1,8 +1,11 @@
 name: Playwright wp-now
 
 on:
-  pull_request:
-  merge_group:
+  workflow_dispatch:
+    inputs:
+      core_branch:
+        description: 'Elementor Core Branch'
+        required: true
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
