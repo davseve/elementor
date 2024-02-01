@@ -16,8 +16,6 @@ abstract class Base_Promotion_Template implements Admin_Menu_Item_With_Page {
 
 	abstract protected function get_cta_url();
 
-	abstract protected function set_list();
-
 	abstract protected function get_video_url();
 
 	public function is_visible() {
@@ -44,12 +42,12 @@ abstract class Base_Promotion_Template implements Admin_Menu_Item_With_Page {
 		return '';
 	}
 
-	protected function get_list() {
+	protected function create_list( $list ) {
 		ob_start();
-		if ( ! empty( $this->set_list() ) ) {
+		if ( ! empty( $list ) ) {
 			?>
 			<ul>
-				<?php foreach ( $this->set_list() as $item ) { ?>
+				<?php foreach ( $list as $item ) { ?>
 					<li><?php Utils::print_unescaped_internal_string( $item ); ?></li>
 				<?php } ?>
 			</ul>
@@ -59,13 +57,17 @@ abstract class Base_Promotion_Template implements Admin_Menu_Item_With_Page {
 		return ob_get_clean();
 	}
 
+	public function get_promotion_description() {
+		return '';
+	}
+
 	public function render() {
 		?>
 			<div class="e-feature-promotion">
 				<div class="e-feature-promotion_data">
 					<h3><?php Utils::print_unescaped_internal_string( $this->get_promotion_title() ); ?></h3>
 
-					<?php Utils::print_unescaped_internal_string( $this->get_list() ); ?>
+					<?php Utils::print_unescaped_internal_string( $this->get_promotion_description() ); ?>
 
 					<a class="elementor-button go-pro" href="<?php echo esc_url( $this->get_cta_url() ); ?>" target="_blank">
 						<?php Utils::print_unescaped_internal_string( $this->get_cta_text() ); ?>
