@@ -129,6 +129,12 @@ jobs:
         env:
           TEST_SUITE: "@${{matrix.testSuite}}"
         run: npm run test:playwright
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+         name: playwright-test-results-${{ matrix.testSuite }}
+         path: test-results/
+         retention-days: 3
 
   test-result:
     needs: Playwright
