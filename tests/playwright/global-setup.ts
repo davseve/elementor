@@ -15,7 +15,7 @@ module.exports = async ( config: FullConfig ) => {
 	// await page.click( '#wp-submit' );
 	// await page.waitForSelector( 'text=Dashboard' );
 
-	// await page.screenshot( { path: '/test-results/screenshot.png' } );
+	await page.screenshot( { path: '../../test-results/screenshot.png' } );
 	// Save signed-in state to 'storageState.json'.
 	const storageState = await page.context().storageState( { path: './storageState.json' } );
 
