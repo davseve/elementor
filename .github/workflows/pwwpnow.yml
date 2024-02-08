@@ -117,23 +117,14 @@ jobs:
       - name: Install WordPress environment
         run: |
           npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
+          cd ~
           pwd
           ls -la
-          cd ..
+
+          cd ~/.wp-now/
           pwd
-          ls -la
-          cd ..
-          pwd
-          ls -la
-          cd ..
-          pwd
-          ls -la
-          cd ..
-          pwd
-          ls -la
-          cd ..
-          pwd
-          ls -la
+          la -al
+
       - name: WP Cli check
         run: |
           wp --info
