@@ -118,11 +118,21 @@ jobs:
         run: |
           pwd
           ls -la
+          cd ..
+          ls -la
+          cd ..
+          ls -la
+          cd ..
+          ls -la
+          cd ..
+          ls -la
+          cd ..
+
           npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
       - name: WP Cli check
         run: |
           wp --info
-          wp theme activate hello-elementor
+#          wp theme activate hello-elementor
       - name: Install playwright/test
         run: |
           npm run test:setup:playwright
