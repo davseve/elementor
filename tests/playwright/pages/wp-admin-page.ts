@@ -31,11 +31,11 @@ export default class WpAdminPage extends BasePage {
 	}
 
 	async openNewPage( setWithApi: boolean = true, setPageName: boolean = true ) {
-		if ( setWithApi ) {
-			await this.createNewPostWithAPI();
-		} else {
-			await this.createNewPostFromDashboard( setPageName );
-		}
+		// if ( setWithApi ) {
+		// 	await this.createNewPostWithAPI();
+		// } else {
+		// }
+		await this.createNewPostFromDashboard( setPageName );
 
 		await this.page.waitForLoadState( 'load', { timeout: 20000 } );
 		await this.waitForPanel();
