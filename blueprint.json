@@ -10,7 +10,7 @@
 		{
 			"step": "activatePlugin",
 			"pluginName": "elementor",
-			"pluginPath": "./elementor/"
+			"pluginPath": "./build/"
 		}
 	]
 }
