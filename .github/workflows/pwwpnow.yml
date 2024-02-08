@@ -117,17 +117,10 @@ jobs:
       - name: Install WordPress environment
         run: |
           npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
-          cd ~
-          pwd
-          ls -la
-
-          cd ~/.wp-now/
-          pwd
-          la -al
-
       - name: WP Cli check
         run: |
           wp --info
+          wp option get siteurl
 #          wp theme activate hello-elementor
       - name: Install playwright/test
         run: |
