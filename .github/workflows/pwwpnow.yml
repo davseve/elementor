@@ -119,9 +119,7 @@ jobs:
           pwd
           ls -la
           npx wp-now start --php=8.0 --blueprint=./blueprint.json &
-          npx wp-env run cli wp plugin list
-          npx wp-env run cli wp core version
-          npx wp-env run cli wp --info
+          wp plugin list
       - name: Install playwright/test
         run: |
           npm run test:setup:playwright
