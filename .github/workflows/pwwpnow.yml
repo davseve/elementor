@@ -118,8 +118,9 @@ jobs:
         run: |
           pwd
           ls -la
-          npx wp-now start --php=8.0 --blueprint=./blueprint.json &
-          wp plugin list
+          npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
+      - name: WP Cli check
+        run: wp --info
       - name: Install playwright/test
         run: |
           npm run test:setup:playwright
