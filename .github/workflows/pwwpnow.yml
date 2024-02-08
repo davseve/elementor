@@ -118,7 +118,8 @@ jobs:
         run: |
           pwd
           ls -la
-          npx wp-now start --php=8.0 --path=home/runner/work/elementor/ --blueprint=/home/runner/work/elementor/elementor/
+          cd ..
+          npx wp-now start --php=8.0 --path=home/runner/work/elementor/ --blueprint=/elementor/blueprint.json
           npm run test:setup:playwright
       - name: Install playwright/test
         run: |

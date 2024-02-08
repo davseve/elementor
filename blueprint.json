@@ -10,7 +10,7 @@
 		{
 			"step": "activatePlugin",
 			"pluginName": "elementor",
-			"pluginPath": "/home/runner/work/elementor/elementor"
+			"pluginPath": "./elementor/"
 		}
 	]
 }
