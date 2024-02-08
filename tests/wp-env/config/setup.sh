@@ -15,4 +15,4 @@ set -eox pipefail
 ## Add user meta so the announcement popup will not be displayed - ED-9723
 #for id in $(wp user list --field=ID)
 #do wp user meta add "$id" "announcements_user_counter" 999
-done
+#done
