@@ -120,7 +120,6 @@ jobs:
       - name: WP Cli check
         run: |
           wp --info
-          wp option get siteurl
 #          wp theme activate hello-elementor
       - name: Install playwright/test
         run: |
