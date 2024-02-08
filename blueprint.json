@@ -8,9 +8,6 @@
 	"phpExtensionBundles": ["kitchen-sink"],
 	"steps": [
 		{
-			"step": "login"
-		},
-		{
 			"step": "activatePlugin",
 			"pluginName": "elementor",
 			"pluginPath": "./elementor/"
