@@ -13,8 +13,9 @@ module.exports = async ( config: FullConfig ) => {
 	// await page.fill( 'input[name="log"]', process.env.USERNAME || 'admin' );
 	// await page.fill( 'input[name="pwd"]', process.env.PASSWORD || 'password' );
 	// await page.click( '#wp-submit' );
-	await page.waitForSelector( 'text=Dashboard' );
+	// await page.waitForSelector( 'text=Dashboard' );
 
+	// await page.screenshot( { path: '/test-results/screenshot.png' } );
 	// Save signed-in state to 'storageState.json'.
 	const storageState = await page.context().storageState( { path: './storageState.json' } );
 
