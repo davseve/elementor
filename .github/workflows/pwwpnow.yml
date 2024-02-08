@@ -118,13 +118,12 @@ jobs:
         run: |
           pwd
           ls -la
-          npx wp-now start --php=8.0 --blueprint=./blueprint.json
+          npx wp-now start --php=8.0 --blueprint=./blueprint.json &
           npm run test:setup:playwright
       - name: Install playwright/test
         run: |
           npx playwright install chromium
       - name: Run Playwright tests
-#        if: ${{matrix.testSuite !='elements-regression'}}
         env:
           TEST_SUITE: "@${{matrix.testSuite}}"
         run: npm run test:playwright
