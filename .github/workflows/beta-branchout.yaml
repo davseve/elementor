@@ -1,0 +1,32 @@
+name: Beta Branch-out
+
+on:
+    workflow_dispatch:
+        inputs:
+            branchName:
+                description: 'Enter the name of the new branch'
+                required: true
+                default: 'new-branch'
+
+jobs:
+    create-branch:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Check out repository
+              uses: actions/checkout@v2
+
+            - name: Get new branch name
+              run: |
+                  BRANCH_NAME=$(node -p "require('./package.json').version")
+                  echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+
+            - name: Create new branch
+              run: |
+                git checkout -b ${{ env.BRANCH_NAME }}
+                git push origin ${{ env.BRANCH_NAME }}
+
+            - name: Bump version number
+              run: |
+                  arrIN=(${IN//;/ })
+
