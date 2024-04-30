@@ -13,20 +13,21 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - name: Check out repository
-              uses: actions/checkout@v2
+            -   name: Check out repository
+                uses: actions/checkout@v2
 
-            - name: Get new branch name
-              run: |
-                  BRANCH_NAME=$(node -p "require('./package.json').version")
-                  echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
+            -   name: Get new branch name
+                run: |
+                    BRANCH_NAME=$(node -p "require('./package.json').version")
+                    echo "BRANCH_NAME=${BRANCH_NAME}" >> $GITHUB_ENV
 
-            - name: Create new branch
-              run: |
-                git checkout -b ${{ env.BRANCH_NAME }}
-                git push origin ${{ env.BRANCH_NAME }}
+            -   name: Create new branch
+                run: |
+                    git checkout -b ${{ env.BRANCH_NAME }}
+                    git push origin ${{ env.BRANCH_NAME }}
 
-            - name: Bump version number
-              run: |
-                  arrIN=(${IN//;/ })
+            -   name: Bump version number
+                run: |
+                    MINOR_VERSION=(${BRANCH_NAME//./ })
+                    echo ${MINOR_VERSION[1]}
 
