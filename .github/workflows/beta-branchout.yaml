@@ -28,6 +28,12 @@ jobs:
 
             -   name: Bump version number
                 run: |
-                    MINOR_VERSION=(${BRANCH_NAME//./ })
-                    echo ${MINOR_VERSION[1]}
+                    VERSION=(${BRANCH_NAME//./ })
+                    MINOR_VERSION=${VERSION[1]}
+                    NEW_MINOR_VERSION=$(( $MINOR_VERSION + 1 ))
+                    NEW_VERSION=(${VERSION[0]}.$NEW_MINOR_VERSION)
+                    sed -i -E "s/Version: .*/Version: ${NEW_VERSION}/g" elementor.php
+                    sed -i -E "s/ELEMENTOR_VERSION', '.*'/ELEMENTOR_VERSION', '${NEW_VERSION}'/g" elementor.php
+                    sed -i -E "s/version', '.*'/version', '${NEW_VERSION}'/g" package.json
+
 
