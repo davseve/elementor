@@ -958,6 +958,10 @@ class Nested_Accordion extends Widget_Nested_Base {
 				itemTitleIconActive = '' === settings.accordion_item_title_icon_active.value
 					? itemTitleIcon
 					: elementor.helpers.renderIcon( view, settings['accordion_item_title_icon_active'], { 'aria-hidden': true }, 'i', 'object' );
+			// gettime now in ms ans store it in local session storage
+			const time = new Date().getTime();
+			localStorage.setItem('accordion-time', time);
+			console.log('nested-accordion start', { time } );
 			#>
 
 				<# _.each( settings['items'], function( item, index ) {
