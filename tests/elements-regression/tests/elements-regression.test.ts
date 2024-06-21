@@ -5,15 +5,6 @@ import EditorPage from '../../playwright/pages/editor-page';
 import ElementRegressionHelper from '../helper';
 
 test.describe( 'Elementor regression tests with templates for CORE', () => {
-	test.beforeAll( async ( { browser }, testInfo ) => {
-		const context = await browser.newContext();
-		const page = await context.newPage();
-		const wpAdmin = new WpAdminPage( page, testInfo );
-		await wpAdmin.setExperiments( {
-			container: 'active',
-		} );
-	} );
-
 	const testData = [
 		'divider',
 		'heading',
@@ -61,13 +52,13 @@ test.describe( 'Elementor regression tests with templates for CORE', () => {
 			};
 
 			const wpAdminPage = new WpAdminPage( page, testInfo );
-			const editorPage = new EditorPage( page, testInfo );
+			const editor = new EditorPage( page, testInfo );
 			const helper = new ElementRegressionHelper( page, testInfo );
-			await wpAdminPage.openNewPage( false, false );;
-			await editorPage.closeNavigatorIfOpen();
+			await wpAdminPage.openNewPage();
+			await editor.closeNavigatorIfOpen();
 
-			await editorPage.loadTemplate( filePath, true );
-			await editorPage.waitForIframeToLoaded( widgetType );
+			await editor.loadTemplate( filePath, true );
+			await editor.waitForIframeToLoaded( widgetType );
 
 			await page.setViewportSize( { width: 1920, height: 3080 } );
 			await helper.doScreenshot( widgetType, false );
@@ -75,10 +66,11 @@ test.describe( 'Elementor regression tests with templates for CORE', () => {
 			await helper.doResponsiveScreenshot( { device: 'mobile', isPublished: false, widgetType } );
 			await helper.doResponsiveScreenshot( { device: 'tablet', isPublished: false, widgetType } );
 
-			await editorPage.publishAndViewPage();
+			await editor.publishAndViewPage();
 
-			await editorPage.waitForIframeToLoaded( widgetType, true );
-			await editorPage.removeWpAdminBar();
+			await editor.waitForIframeToLoaded( widgetType, true );
+			await editor.removeWpAdminBar();
+			await page.setViewportSize( { width: 1920, height: 1080 } );
 			await helper.doScreenshot( widgetType, true );
 			await helper.doHoverScreenshot( { widgetType, hoverSelector, isPublished: true } );
 			await helper.doResponsiveScreenshot( { device: 'mobile', isPublished: true, widgetType } );

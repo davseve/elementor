@@ -18,7 +18,7 @@ export default class NestedTabs extends Base {
 	 * @return {string}
 	 */
 	getTabTitleFilterSelector( tabIndex ) {
-		return `[data-tab-index="${ tabIndex }"]`;
+		return `[${ this.getSettings( 'dataAttributes' ).tabIndex }="${ tabIndex }"]`;
 	}
 
 	/**
@@ -36,20 +36,40 @@ export default class NestedTabs extends Base {
 	 * @return {string}
 	 */
 	getTabIndex( tabTitleElement ) {
-		return tabTitleElement.getAttribute( 'data-tab-index' );
+		return tabTitleElement.getAttribute( this.getSettings( 'dataAttributes' ).tabIndex );
+	}
+
+	getActiveTabIndex() {
+		const settings = this.getSettings(),
+			activeTitleFilter = settings.ariaAttributes.activeTitleSelector,
+			tabIndexSelector = settings.dataAttributes.tabIndex,
+			$activeTitle = this.elements.$tabTitles.filter( activeTitleFilter );
+
+		return $activeTitle.attr( tabIndexSelector ) || null;
+	}
+
+	getWidgetNumber() {
+		return this.$element.find( '> .elementor-widget-container > .e-n-tabs, > .e-n-tabs' ).attr( 'data-widget-number' );
 	}
 
 	getDefaultSettings() {
+		const widgetNumber = this.getWidgetNumber();
+
 		return {
 			selectors: {
-				widgetContainer: '.e-n-tabs',
-				tabTitle: '.e-n-tab-title',
-				tabContent: '.e-n-tabs-content > .e-con',
-				headingContainer: '.e-n-tabs-heading',
-				activeTabContentContainers: '.e-con.e-active',
+				widgetContainer: `[data-widget-number="${ widgetNumber }"]`,
+				tabTitle: `[id*="e-n-tab-title-${ widgetNumber }"]`,
+				tabTitleIcon: `[id*="e-n-tab-title-${ widgetNumber }"] > .e-n-tab-icon`,
+				tabTitleText: `[id*="e-n-tab-title-${ widgetNumber }"] > .e-n-tab-title-text`,
+				tabContent: `[data-widget-number="${ widgetNumber }"] > .e-n-tabs-content > .e-con`,
+				headingContainer: `[data-widget-number="${ widgetNumber }"] > .e-n-tabs-heading`,
+				activeTabContentContainers: `[id*="e-n-tab-content-${ widgetNumber }"].e-active`,
 			},
 			classes: {
 				active: 'e-active',
+			},
+			dataAttributes: {
+				tabIndex: 'data-tab-index',
 			},
 			ariaAttributes: {
 				titleStateAttribute: 'aria-selected',
@@ -67,6 +87,7 @@ export default class NestedTabs extends Base {
 		const selectors = this.getSettings( 'selectors' );
 
 		return {
+			$widgetContainer: this.findElement( selectors.widgetContainer ),
 			$tabTitles: this.findElement( selectors.tabTitle ),
 			$tabContents: this.findElement( selectors.tabContent ),
 			$headingContainer: this.findElement( selectors.headingContainer ),
@@ -96,6 +117,8 @@ export default class NestedTabs extends Base {
 
 		// Return back original toggle effects
 		this.setSettings( originalToggleMethods );
+
+		this.elements.$widgetContainer.addClass( 'e-activated' );
 	}
 
 	deactivateActiveTab( newTabIndex ) {
@@ -167,12 +190,16 @@ export default class NestedTabs extends Base {
 	}
 
 	isActiveTab( tabIndex ) {
-		return 'true' === this.elements.$tabTitles.filter( '[data-tab-index="' + tabIndex + '"]' ).attr( this.getSettings( 'ariaAttributes' ).titleStateAttribute );
+		const settings = this.getSettings(),
+			isActiveTabTitle = 'true' === this.elements.$tabTitles.filter( `[${ settings.dataAttributes.tabIndex }="${ tabIndex }"]` ).attr( settings.ariaAttributes.titleStateAttribute ),
+			isActiveTabContent = this.elements.$tabContents.filter( this.getTabContentFilterSelector( tabIndex ) ).hasClass( this.getActiveClass() );
+
+		return isActiveTabTitle && isActiveTabContent;
 	}
 
 	onTabClick( event ) {
 		event.preventDefault();
-		this.changeActiveTab( event.currentTarget?.getAttribute( 'data-tab-index' ), true );
+		this.changeActiveTab( event.currentTarget?.getAttribute( this.getSettings( 'dataAttributes' ).tabIndex ), true );
 	}
 
 	getTabEvents() {
@@ -209,6 +236,7 @@ export default class NestedTabs extends Base {
 		elementorFrontend.elements.$window.on( 'resize', this.setTouchMode.bind( this ) );
 		elementorFrontend.elements.$window.on( 'elementor/nested-tabs/activate', this.reInitSwipers );
 		elementorFrontend.elements.$window.on( 'elementor/nested-elements/activate-by-keyboard', this.changeActiveTabByKeyboard.bind( this ) );
+		elementorFrontend.elements.$window.on( 'elementor/nested-container/atomic-repeater', this.linkContainer.bind( this ) );
 	}
 
 	unbindEvents() {
@@ -390,5 +418,57 @@ export default class NestedTabs extends Base {
 		}
 
 		this.$element.find( widgetSelector ).attr( 'data-touch-mode', 'false' );
+	}
+
+	linkContainer( event ) {
+		const { container } = event.detail,
+			id = container.model.get( 'id' ),
+			currentId = this.$element.data( 'id' ),
+			view = container.view.$el;
+
+		if ( id === currentId ) {
+			this.updateIndexValues();
+			this.updateListeners( view );
+			elementor.$preview[ 0 ].contentWindow.dispatchEvent( new CustomEvent( 'elementor/elements/link-data-bindings' ) );
+		}
+
+		if ( ! this.getActiveTabIndex() ) {
+			const targetIndex = event.detail.index + 1 || 1;
+			this.changeActiveTab( targetIndex );
+		}
+	}
+
+	updateListeners( view ) {
+		this.elements.$tabContents = view.find( this.getSettings( 'selectors.tabContent' ) );
+		this.elements.$tabTitles = view.find( this.getSettings( 'selectors.tabTitle' ) );
+
+		this.elements.$tabTitles.on( this.getTabEvents() );
+	}
+
+	updateIndexValues() {
+		const { $widgetContainer, $tabContents, $tabTitles } = this.getDefaultElements(),
+			settings = this.getSettings(),
+			dataTabIndex = settings.dataAttributes.tabIndex,
+			widgetNumber = $widgetContainer.data( 'widgetNumber' );
+
+		$tabTitles.each( ( index, element ) => {
+			const newIndex = index + 1,
+				updatedTabID = `e-n-tab-title-${ widgetNumber }${ newIndex }`,
+				updatedContainerID = `e-n-tab-content-${ widgetNumber }${ newIndex }`;
+
+			element.setAttribute( 'id', updatedTabID );
+			element.setAttribute( 'style', `--n-tabs-title-order: ${ newIndex }` );
+			element.setAttribute( dataTabIndex, newIndex );
+			element.setAttribute( 'aria-controls', updatedContainerID );
+
+			element.querySelector( settings.selectors.tabTitleIcon )?.setAttribute( 'data-binding-index', newIndex );
+
+			element.querySelector( settings.selectors.tabTitleText ).setAttribute( 'data-binding-index', newIndex );
+
+			$tabContents[ index ].setAttribute( 'aria-labelledby', updatedTabID );
+			$tabContents[ index ].setAttribute( dataTabIndex, newIndex );
+			$tabContents[ index ].setAttribute( 'id', updatedContainerID );
+			$tabContents[ index ].setAttribute( 'style', `--n-tabs-title-order: ${ newIndex }` );
+		} );
 	}
 }

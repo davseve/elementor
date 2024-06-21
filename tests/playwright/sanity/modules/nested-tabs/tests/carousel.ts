@@ -9,15 +9,17 @@ export async function testCarouselIsVisibleWhenUsingDirectionRightOrLeft(
 	imageCarousel: ImageCarousel ) {
 	// Act.
 	const contentContainerId = await selectDropdownContainer( editor, '', 0 ),
-		activeContentContainer = await editor.getPreviewFrame().locator( '.e-n-tabs-content > .e-con.e-active' ),
+		activeContentContainer = editor.getPreviewFrame().locator( '.e-n-tabs-content > .e-con.e-active' ),
 		carouselId = await editor.addWidget( 'image-carousel', contentContainerId );
+
 	// Add images.
 	await imageCarousel.addImageGallery();
-	await imageCarousel.setAutoplay();
+	await editor.openSection( 'section_additional_options' );
+	await editor.setSwitcherControlValue( 'autoplay', false );
 
 	// Set direction right.
 	await clickTab( editor.getPreviewFrame(), 0 );
-	await page.locator( '.elementor-control-tabs_direction .eicon-h-align-right' ).click();
+	await editor.setChooseControlValue( 'tabs_direction', 'eicon-h-align-right' );
 	await editor.togglePreviewMode();
 
 	// Assert
@@ -30,5 +32,5 @@ export async function testCarouselIsVisibleWhenUsingDirectionRightOrLeft(
 	await editor.togglePreviewMode();
 	await editor.removeElement( carouselId );
 	await clickTab( editor.getPreviewFrame(), 0 );
-	await page.locator( '.elementor-control-tabs_direction .eicon-h-align-right' ).click();
+	await editor.setChooseControlValue( 'tabs_direction', 'eicon-h-align-right' );
 }
