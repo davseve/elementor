@@ -45,6 +45,8 @@ abstract class Document extends Controls_Stack {
 
 	const CACHE_META_KEY = '_elementor_element_cache';
 
+	const DOCUMENT_CACHE_KEY = '_elementor_document_cache';
+
 	/**
 	 * Document publish status.
 	 */
@@ -1802,7 +1804,7 @@ abstract class Document extends Controls_Stack {
 			return;
 		}
 
-		$cached_data = $this->get_document_cache();
+		$cached_data = $this->get_document_cache( static::DOCUMENT_CACHE_KEY );
 
 		if ( false === $cached_data ) {
 			add_filter( 'elementor/element/should_render_shortcode', '__return_true' );
@@ -1834,7 +1836,7 @@ abstract class Document extends Controls_Stack {
 			];
 
 			if ( $this->should_store_cache_elements() ) {
-				$this->set_document_cache( $cached_data );
+				$this->set_document_cache( $cached_data, static::DOCUMENT_CACHE_KEY );
 			}
 
 			remove_filter( 'elementor/element/should_render_shortcode', '__return_true' );
@@ -1876,7 +1878,8 @@ abstract class Document extends Controls_Stack {
 		}
 	}
 
-	public function set_document_cache( $value ) {
+	public function set_document_cache( $value, $cache_key = null ) {
+		$cache_key = $cache_key === null ? static::CACHE_META_KEY : $cache_key;
 		$expiration_hours = get_option( 'elementor_element_cache_ttl', '' );
 
 		if ( empty( $expiration_hours ) || ! is_numeric( $expiration_hours ) ) {
@@ -1892,11 +1895,12 @@ abstract class Document extends Controls_Stack {
 			'value' => $value,
 		];
 
-		$this->update_json_meta( static::CACHE_META_KEY, $data );
+		$this->update_json_meta( $cache_key, $data );
 	}
 
-	private function get_document_cache() {
-		$cache = $this->get_json_meta( static::CACHE_META_KEY );
+	private function get_document_cache( $cache_key = null) {
+		$cache_key = $cache_key === null ? static::CACHE_META_KEY : $cache_key;
+		$cache = $this->get_json_meta( $cache_key );
 
 		if ( empty( $cache['timeout'] ) ) {
 			return false;

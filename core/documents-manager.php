@@ -283,9 +283,54 @@ class Documents_Manager {
 			$document = $this->get_doc_or_auto_save( $post_id, get_current_user_id() );
 		} else {
 			$document = $this->get( $post_id );
+//			$cached_data = $this->maybe_get_document_from_cache( $post_id );
+//
+//			if( $cached_data ) {
+//				$document = $cached_data;
+//			} else {
+//				$document = $this->get( $post_id );
+//				$this->maybe_save_elements_to_cache( $document );
+//			}
 		}
 
+
 		return $document;
+	}
+
+	/**
+	 * Save elements to cache.
+	 */
+	private function maybe_save_elements_to_cache( $document )
+	{
+		if (!$document) {
+			return;
+		}
+
+		// contains dynamic data
+		if ( $this->should_cache_document( $document ) ){
+			update_post_meta($document->get_post()->ID, Document::DOCUMENT_CACHE_KEY, $document);
+		}
+	}
+
+	private function should_cache_document( $document ) {
+		$cache_document = true;
+		Plugin::$instance->db->iterate_data( $document->get_elements_data(), function( $element_data ) {
+			global $cache_document;
+			if ( ! empty( $element_data['settings']['__dynamic__'] ) ) {
+				$cache_document = false;
+			}
+		} );
+
+		return $cache_document;
+	}
+
+	/**
+	 * Get cached data from db
+	 */
+	private function maybe_get_document_from_cache( $post_id ) {
+		$cached_data = get_post_meta( $post_id, Document::DOCUMENT_CACHE_KEY, true );
+
+		return ( $cached_data && ! empty( $cached_data ) ) ? $cached_data : false;
 	}
 
 	/**
