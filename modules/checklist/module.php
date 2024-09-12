@@ -38,6 +38,7 @@ class Module extends BaseApp {
 
 		$min_suffix = Utils::is_script_debug() ? '' : '.min';
 
+		
 		wp_enqueue_script(
 			self::NAME,
 			$this->get_js_assets_url( 'checklist' ),
