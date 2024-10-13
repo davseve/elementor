@@ -1,0 +1,57 @@
+name: Update Files with MDX String
+
+on:
+  workflow_dispatch:
+    inputs:
+      mdx_string:
+        description: "MDX string to insert into files"
+        required: true
+      branch:
+        description: "Branch to commit changes"
+        required: true
+  repository_dispatch:
+    types: [update_files]
+
+jobs:
+  validate_and_update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.inputs.branch }}
+
+#      - name: Ensure only authorized user
+#        run: |
+#          if [ "${{ github.actor }}" != "allowed-username" ]; then
+#            echo "Unauthorized user: ${{ github.actor }} is not allowed to run this workflow."
+#            exit 1
+#          fi
+      - name: Ensure only authorized user
+        uses: ./.github/workflows/permissions
+        with:
+          ENVIRONMENT: ${{ env.config_deployment_environment }}
+          DEPLOYMENT_PERMITTED: ${{ env.config_deployment_permitted }}
+          DEPLOYMENT_REPOSITORY_OWNER: ${{ env.config_deployment_repository_owner }}
+
+      - name: Validate MDX string
+        id: validate
+        run: |
+          echo "${{ github.event.inputs.mdx_string }}" > mdx_input.txt
+          node scripts/validate-mdx.js mdx_input.txt
+        shell: bash
+
+      - name: Insert MDX string into files
+        run: |
+          node scripts/insert-cahngelog-into-files.js "${{ github.event.inputs.mdx_string }}"
+        shell: bash
+
+      - name: Commit and Push changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add readme.txt changelog.txt
+          git commit -m "Insert MDX string into readme and changelog"
+          git push origin ${{ github.event.inputs.branch }}
+        shell: bash
