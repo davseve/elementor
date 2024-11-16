@@ -165,7 +165,7 @@ jobs:
 
   test-result:
     needs: Playwright
-    if: ${{ always() }} # Will be run even if 'Playwright' matrix will be skipped
+#    if: ${{ always() }} # Will be run even if 'Playwright' matrix will be skipped
     runs-on: ubuntu-22.04
     name: Playwright - Test Results
     steps:
