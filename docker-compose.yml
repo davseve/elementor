@@ -35,7 +35,7 @@ services:
       - db
     image: wordpress:latest
     ports:
-      - '8000:80'
+      - '8888:80'
     restart: always
     volumes:
       - ./wordpress:/var/www/html
