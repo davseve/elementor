@@ -53,12 +53,13 @@ services:
     image: wordpress:cli
     links:
       - db:db
-    entrypoint: wp
-    command: "--info"
+    entrypoint: tail -f /dev/null
     container_name: ${COMPOSE_PROJECT_NAME}_wpcli
     volumes:
       - ${WORDPRESS_DATA_DIR:-./wordpress}:/var/www/html
     working_dir: /var/www/html
+    command:
+      -
 
 
 networks:

@@ -76,11 +76,6 @@ jobs:
 
           echo "PACKAGE_VERSION=$PACKAGE_VERSION" >> $GITHUB_ENV
           echo "PLUGIN_FOLDER_FILENAME=$PLUGIN_FOLDER_FILENAME" >> $GITHUB_ENV
-      - name: Create Site
-        run: |
-          wp --info
-          wp core version
-          wp site create --slug=elementor --title=Elementor -- admin_user=admin --admin_password=password -
       - name: Build plugin
         if: github.event.pull_request.title == null || steps.changelog_diff_files.outputs.diff
         uses: ./.github/workflows/build-plugin

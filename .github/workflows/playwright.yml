@@ -47,8 +47,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  build-site:
-
   build-plugin:
     name: Build plugin
     uses: ./.github/workflows/build.yml
@@ -91,7 +89,6 @@ jobs:
           npm run start-local-server
           - name: Wait for services to start
             run: sleep 30
-
       - name: Run WP-CLI Command
         run: |
           docker compose run wpcli wp core install \
