@@ -84,9 +84,25 @@ jobs:
           PHP_VERSION: '8.0'
           WP_CORE_VERSION: 'latest'
         run: node ./.github/scripts/build-wp-env.js
+      - name: Install Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose
+      - name: Check Docker Compose Version
+        run: docker compose version
       - name: Install WordPress environment
         run: |
           npm run start-local-server
+      - name: Wait for services to start
+        run: sleep 30
+      - name: Run WP-CLI Command
+        run: |
+          docker compose run wpcli wp core install \
+            --url="http://localhost:8888" \
+            --title="My WordPress Site" \
+            --admin_user="admin" \
+            --admin_password="adminpassword" \
+            --admin_email="admin@example.com"
       - name: Update wordpress to nightly build
         if: ${{ github.event_name == 'schedule' }}
         run: npx wp-env run cli wp core update https://wordpress.org/nightly-builds/wordpress-latest.zip
@@ -165,7 +181,7 @@ jobs:
 
   test-result:
     needs: Playwright
-    if: ${{ always() }} # Will be run even if 'Playwright' matrix will be skipped
+#    if: ${{ always() }} # Will be run even if 'Playwright' matrix will be skipped
     runs-on: ubuntu-22.04
     name: Playwright - Test Results
     steps:
