@@ -47,6 +47,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  build-site:
+
   build-plugin:
     name: Build plugin
     uses: ./.github/workflows/build.yml
@@ -87,6 +89,17 @@ jobs:
       - name: Install WordPress environment
         run: |
           npm run start-local-server
+          - name: Wait for services to start
+            run: sleep 30
+
+      - name: Run WP-CLI Command
+        run: |
+          docker compose run wpcli wp core install \
+            --url="http://localhost:8888" \
+            --title="My WordPress Site" \
+            --admin_user="admin" \
+            --admin_password="adminpassword" \
+            --admin_email="admin@example.com"
       - name: Update wordpress to nightly build
         if: ${{ github.event_name == 'schedule' }}
         run: npx wp-env run cli wp core update https://wordpress.org/nightly-builds/wordpress-latest.zip
