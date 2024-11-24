@@ -35,7 +35,7 @@ jobs:
       - name: Check if Custom Core was executed
         if: github.event.inputs.custom_core_executed == 'false'
         run: |
-          echo "Custom Core was not executed. Please run Custom Core before running this workflow."
+          echo -e "\033[31mCustom Core was not executed. Please run Custom Core before running this workflow.\033[0m"
           exit 1
       - name: checkout branch
         uses: actions/checkout@v4
