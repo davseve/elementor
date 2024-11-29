@@ -1,4 +1,5 @@
-import { test, expect } from '@playwright/test';
+import { expect } from '@playwright/test';
+import { parallelTest as test } from '../../../parallelTest';
 import WpAdminPage from '../../../pages/wp-admin-page';
 import EditorPage from '../../../pages/editor-page';
 import EditorSelectors from '../../../selectors/editor-selectors';
@@ -23,8 +24,8 @@ test.describe( 'Image widget tests @styleguide_image_link', () => {
 	];
 
 	for ( const i in data ) {
-		test( `${ data[ i ].widgetTitle }: Image size test`, async ( { page }, testInfo ) => {
-			const wpAdmin = new WpAdminPage( page, testInfo );
+		test( `${ data[ i ].widgetTitle }: Image size test`, async ( { page, apiRequests }, testInfo ) => {
+			const wpAdmin = new WpAdminPage( page, testInfo, apiRequests );
 			const editor = new EditorPage( page, testInfo );
 			const contentTab = new Content( page, testInfo );
 			const imageTitle = 'About-Pic-3-1';
@@ -76,8 +77,8 @@ test.describe( 'Image widget tests @styleguide_image_link', () => {
 	}
 
 	for ( const i in data ) {
-		test( `${ data[ i ].widgetTitle }: Custom image size test`, async ( { page }, testInfo ) => {
-			const wpAdmin = new WpAdminPage( page, testInfo );
+		test( `${ data[ i ].widgetTitle }: Custom image size test`, async ( { page, apiRequests }, testInfo ) => {
+			const wpAdmin = new WpAdminPage( page, testInfo, apiRequests );
 			const editor = new EditorPage( page, testInfo );
 			const contentTab = new Content( page, testInfo );
 			const imageTitle = 'About-Pic-3-1';
@@ -97,14 +98,14 @@ test.describe( 'Image widget tests @styleguide_image_link', () => {
 		} );
 	}
 
-	test( 'Lightbox image captions aligned center', async ( { page }, testInfo ) => {
-		const wpAdmin = new WpAdminPage( page, testInfo );
+	test( 'Test Lightbox', async ( { page, apiRequests }, testInfo ) => {
+		const wpAdmin = new WpAdminPage( page, testInfo, apiRequests );
 		const editor = new EditorPage( page, testInfo );
 		const image = 'About-Pic-3-1';
 
 		await wpAdmin.openNewPage();
 		await editor.closeNavigatorIfOpen();
-		await editor.addWidget( 'image' );
+		const widgetId = await editor.addWidget( 'image' );
 		await editor.setMediaControlImageValue( 'image', `${ image }.png` );
 		await editor.setSelectControlValue( 'caption_source', 'attachment' );
 		await editor.setSelectControlValue( 'link_to', 'file' );
@@ -118,5 +119,17 @@ test.describe( 'Image widget tests @styleguide_image_link', () => {
 		const description = editor.getPreviewFrame().locator( '.elementor-slideshow__description' );
 		await expect( title ).toHaveCSS( 'text-align', 'center' );
 		await expect( description ).toHaveCSS( 'text-align', 'center' );
+
+		const imageSrc = await editor.getPreviewFrame().locator( EditorSelectors.image.image ).getAttribute( 'src' );
+		await editor.removeElement( widgetId );
+		await editor.addWidget( 'heading' );
+		await editor.setTextControlValue( 'link', imageSrc );
+
+		await editor.publishAndViewPage();
+
+		await page.locator( EditorSelectors.widget ).locator( 'a' ).click( );
+
+		const maskPageTitle = page.locator( EditorSelectors.pageHeader );
+		await expect( page.locator( EditorSelectors.dialog.lightBox ) ).toHaveScreenshot( 'frontend-image-lightbox.png', { mask: [ maskPageTitle ] } );
 	} );
 } );

@@ -9,10 +9,10 @@ export default class ReverseColumns {
 	readonly wpAdmin: WpAdminPage;
 	readonly editor: EditorPage;
 
-	constructor( page: Page, testInfo: TestInfo ) {
+	constructor( page: Page, testInfo: TestInfo, apiRequests ) {
 		this.page = page;
 		this.testInfo = testInfo;
-		this.wpAdmin = new WpAdminPage( this.page, this.testInfo );
+		this.wpAdmin = new WpAdminPage( this.page, this.testInfo, apiRequests );
 		this.editor = new EditorPage( this.page, this.testInfo );
 	}
 
@@ -31,7 +31,7 @@ export default class ReverseColumns {
 		await this.editor.closeNavigatorIfOpen();
 		await this.editor.getPreviewFrame().locator( '.elementor-add-section-inner' ).click( { button: 'right' } );
 		await this.editor.getPreviewFrame().click( '.elementor-add-section-button', { delay: 500, clickCount: 2 } );
-		await this.editor.getPreviewFrame().click( '.elementor-select-preset-list li:nth-child(2)' );
+		await this.editor.getPreviewFrame().click( '.elementor-select-preset-list button:nth-child(2)' );
 	}
 
 	async initAdditionalBreakpoints() {

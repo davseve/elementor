@@ -7,6 +7,9 @@ const EditorSelectors = {
 	plusIcon: '.eicon-plus-circle',
 	siteTitle: '.site-title >> nth=0',
 	pageTitle: '.entry-title >> nth=0',
+	pageHeader: '.page-header',
+	toast: '#elementor-toast',
+	addNewSection: '#elementor-add-new-section',
 	panels: {
 		topBar: {
 			wrapper: '#elementor-editor-wrapper-v2',
@@ -25,9 +28,19 @@ const EditorSelectors = {
 		},
 		siteSettings: {
 			wrapper: '#elementor-panel-page-menu',
+			saveButton: '//button[text()="Save Changes"]',
+			layout: {
+				breakpoints: {
+					removeBreakpointButton: '#elementor-kit-panel-content .select2-selection__choice__remove',
+				},
+			},
 		},
 		userPreferences: {
 			wrapper: '#elementor-panel-editorPreferences-settings-controls',
+		},
+		footerTools: {
+			wrapper: '#elementor-panel-footer',
+			updateButton: '#elementor-panel-saver-button-publish-label',
 		},
 		navigator: {
 			wrapper: '#elementor-navigator',
@@ -36,6 +49,10 @@ const EditorSelectors = {
 			footerButton: '#elementor-panel-footer-navigator i',
 		},
 	},
+	refreshPopup: {
+		reloadButton: '#elementor-save-kit-refresh-page .dialog-button.dialog-ok.dialog-alert-ok',
+	},
+
 	media: {
 		preview: '.elementor-control-media__preview',
 		imageByTitle: ( imageTitle: string ) => `[aria-label="${ imageTitle }"]`,
@@ -91,12 +108,14 @@ const EditorSelectors = {
 			return `${ this.widget } img`;
 		},
 	},
+	galleryControl: {
+		addGalleryBtn: 'button.elementor-control-gallery-add',
+	},
 	imageCarousel: {
 		widget: '[data-widget_type="image-carousel.default"]',
 		get link() {
 			return `${ this.widget } a`;
 		},
-		addGalleryBtn: 'button.elementor-control-gallery-add',
 		navigationSelect: '.elementor-control-navigation select',
 		autoplaySelect: 'input[data-setting="autoplay"]',
 		autoplaySpeedLabel: 'Autoplay Speed',
@@ -144,6 +163,7 @@ const EditorSelectors = {
 		lightBoxDialog: '.elementor-lightbox',
 		iframe: 'iframe[class*="elementor-video"]',
 		playIcon: '[aria-label="Play"]',
+		videoWrapper: '.elementor-video-wrapper',
 	},
 	socialIcons: {
 		widget: '[data-widget_type="social-icons.default"]',
@@ -195,10 +215,41 @@ const EditorSelectors = {
 			editButton: 'button[aria-label="Edit result"]',
 		},
 	},
+	floatingElements: {
+		floatingButtons: {
+			controls: {
+				advanced: {
+					sections: [
+						'.elementor-control-advanced_layout_section',
+						'.elementor-control-advanced_responsive_section',
+						'.elementor-control-advanced_custom_controls_section',
+						'.elementor-control-section_custom_css_pro',
+						'.elementor-control-section_custom_attributes_pro',
+					],
+				},
+			},
+		},
+	},
 	contextMenu: {
 		menu: '.elementor-context-menu',
 		saveAsGlobal: '.elementor-context-menu-list__item.elementor-context-menu-list__item-save.elementor-context-menu-list__item--disabled',
 		notes: '.elementor-context-menu-list__item.elementor-context-menu-list__item-open_notes.elementor-context-menu-list__item--disabled',
+	},
+	dialog: {
+		lightBox: '.elementor-lightbox',
+	},
+	onboarding: {
+		upgradeButton: '.e-onboarding__button-action',
+		skipButton: '.e-onboarding__button-skip',
+		screenTitle: '.e-onboarding__page-content-section-title',
+		progressBar: {
+			skippedItem: '.e-onboarding__progress-bar-item--skipped',
+			completedItem: '.e-onboarding__progress-bar-item--completed',
+		},
+		features: {
+			essential: '#essential',
+			advanced: '#advanced',
+		},
 	},
 };
 
