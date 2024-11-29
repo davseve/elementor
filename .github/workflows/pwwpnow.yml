@@ -117,11 +117,12 @@ jobs:
       - name: Install WordPress environment
         run: |
           npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
-#      - name: WP Cli check
-#        run: |
-#          wp --info
-#          wp plugin list
-#          wp theme activate hello-elementor
+      - name: WP Cli check
+        run: |
+          wp --info
+          wp plugin list
+          wp theme activate hello-elementor
+
       - name: Run wp-now CLI commands
         run: |
           wp-now cli "wp elementor experiments activate e_optimized_css_loading"
