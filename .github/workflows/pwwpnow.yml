@@ -122,7 +122,6 @@ jobs:
 #          wp --info
 #          wp plugin list
 #          wp theme activate hello-elementor
-
       - name: Run wp-now CLI commands
         run: |
           wp-now cli "wp elementor experiments activate e_optimized_css_loading"
