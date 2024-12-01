@@ -36,10 +36,10 @@ jobs:
             .*/**/*
             !readme.txt
             !changelog.txt
-      - name: Install Node.js 18.x
+      - name: Install Node.js 20.x
         uses: actions/setup-node@v3
         with:
-          node-version: 18.x
+          node-version: 20.x
       - name: Restore NPM Cache
         uses: actions/cache/restore@v3
         with:
@@ -47,7 +47,9 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
 #        if: github.event.pull_request.title == null || steps.changelog_diff_files.outputs.diff
-        run: npm i
+        run: |
+          npm i
+          composer install
       - name: Build
 #        if: github.event.pull_request.title == null || steps.changelog_diff_files.outputs.diff
         run: npx grunt build
@@ -113,22 +115,22 @@ jobs:
 #          chmod +x wp-cli.phar
 #          sudo mv wp-cli.phar /usr/local/bin/wp
       - name: Install dependencies
-        run: npm i
+        run: |
+          composer install
+          npm i
       - name: Install WordPress environment
         run: |
           npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
-      - name: WP Cli check
-        run: |
-          wp --info
-          wp plugin list
-          wp theme activate hello-elementor
-
-      - name: Run wp-now CLI commands
-        run: |
-          wp-now cli "wp elementor experiments activate e_optimized_css_loading"
+#      - name: WP Cli check
+#        run: |
+#          wp --info
+#          wp plugin list
+#          wp theme activate hello-elementor
+#      - name: Run wp-now CLI commands
+#        run: |
+#          wp-now cli "wp elementor experiments activate e_optimized_css_loading"
       - name: Install playwright/test
         run: |
-          npm run test:setup:playwright
           npx playwright install chromium
       - name: Run Playwright tests
         env:

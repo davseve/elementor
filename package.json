@@ -146,7 +146,7 @@
 		"@wordpress/data": "^10.5.0",
 		"@wordpress/dom-ready": "^3.45.0",
 		"@wordpress/element": "^5.22.0",
-		"@wp-now/wp-now": "^0.1.72",
+		"@wp-now/wp-now": "^0.1.74",
 		"acorn": "^8.7.1",
 		"core-js": "^3.24.1",
 		"dompurify": "^3.1.3",
