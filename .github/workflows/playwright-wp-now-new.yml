@@ -96,7 +96,8 @@ jobs:
 #          npx wp-env run cli wp --info
       - name: Install WordPress environment
         run: |
-          npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
+          npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json
+          npx wp-now start --php=8.0 --port=8889 --blueprint=./blueprint.json
 
       - name: Install playwright/test
         run: |
