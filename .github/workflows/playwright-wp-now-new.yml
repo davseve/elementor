@@ -43,7 +43,7 @@ concurrency:
 
 jobs:
   build-plugin:
-    if: startsWith( github.repository, 'elementor/' )
+#    if: startsWith( github.repository, 'elementor/' )
     name: Build Elementor Pro
     uses: ./.github/workflows/build.yml
 
