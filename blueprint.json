@@ -27,7 +27,7 @@
 		{
 			"step": "activatePlugin",
 			"pluginName": "elementor",
-			"pluginPath": ".elementor/build/"
+			"pluginPath": "elementor/build/"
 		},
 		{
 			"step": "login",
