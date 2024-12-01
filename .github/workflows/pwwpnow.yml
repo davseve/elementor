@@ -47,7 +47,9 @@ jobs:
           key: npm-${{ runner.os }}-${{ hashFiles('**/package-lock.json') }}
       - name: Install dependencies
 #        if: github.event.pull_request.title == null || steps.changelog_diff_files.outputs.diff
-        run: npm i
+        run: |
+          npm i
+          composer install
       - name: Build
 #        if: github.event.pull_request.title == null || steps.changelog_diff_files.outputs.diff
         run: npx grunt build
@@ -113,7 +115,9 @@ jobs:
 #          chmod +x wp-cli.phar
 #          sudo mv wp-cli.phar /usr/local/bin/wp
       - name: Install dependencies
-        run: npm i
+        run: |
+          composer install
+          npm i
       - name: Install WordPress environment
         run: |
           npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
