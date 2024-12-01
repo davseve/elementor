@@ -3,22 +3,21 @@ namespace Elementor\Modules\GlobalClasses;
 
 use Elementor\Core\Kits\Documents\Kit;
 use Elementor\Modules\AtomicWidgets\Styles\Utils as Atomic_Styles_Utils;
+use Elementor\Plugin;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
 }
 
-class Repository {
+class Global_Classes_Repository {
 	const META_KEY = '_elementor_global_classes';
 
-	private Kit $kit;
-
-	public function __construct( Kit $kit ) {
-		$this->kit = $kit;
+	public static function make(): Global_Classes_Repository {
+		return new self();
 	}
 
 	public function all() {
-		$all = $this->kit->get_json_meta( self::META_KEY );
+		$all = Plugin::$instance->kits_manager->get_active_kit()->get_json_meta( self::META_KEY );
 
 		return Global_Classes::make( $all['items'] ?? [], $all['order'] ?? [] );
 	}
@@ -34,13 +33,13 @@ class Repository {
 			throw new \Exception( "Global class with id ${id} not found" );
 		}
 
-		$this->kit->update_json_meta( self::META_KEY, [
+		Plugin::$instance->kits_manager->get_active_kit()->update_json_meta( self::META_KEY, [
 			'items' => $all->get_items()->except( [ $id ] )->all(),
 			'order' => $all->get_order()->filter( fn( $item ) => $item !== $id )->all(),
 		] );
 	}
 
-	public function patch( string $id, array $value ) {
+	public function put( string $id, array $value ) {
 		$all = $this->all();
 
 		unset( $value['id'] );
@@ -49,7 +48,11 @@ class Repository {
 			throw new \Exception( "Global class with id ${id} not found" );
 		}
 
-		$value = $this->kit->update_json_meta( self::META_KEY, [
+		if ( $value === $all->get_items()[ $id ] ) {
+			return $value;
+		}
+
+		$value = Plugin::$instance->kits_manager->get_active_kit()->update_json_meta( self::META_KEY, [
 			'items' => $all->get_items()->merge( [ $id => $value ] )->all(),
 			'order' => $all->get_order()->all(),
 		] );
@@ -67,7 +70,7 @@ class Repository {
 
 		$value['id'] = $id;
 
-		$updated = $this->kit->update_json_meta( self::META_KEY, [
+		$updated = Plugin::$instance->kits_manager->get_active_kit()->update_json_meta( self::META_KEY, [
 			'items' => $all->get_items()->merge( [ $id => $value ] )->all(),
 			'order' => $all->get_order()->push( $id )->all(),
 		] );
@@ -82,7 +85,11 @@ class Repository {
 	public function arrange( array $value ) {
 		$all = $this->all();
 
-		$updated = $this->kit->update_json_meta( self::META_KEY, [
+		if ( $all->get_order()->all() === $value ) {
+			return $value;
+		}
+
+		$updated = Plugin::$instance->kits_manager->get_active_kit()->update_json_meta( self::META_KEY, [
 			'items' => $all->get_items()->all(),
 			'order' => $value,
 		] );
@@ -96,7 +103,7 @@ class Repository {
 
 	private function generate_global_class_id() {
 		$existing_ids = $this->all()->get_items()->keys();
-		$kit_id = $this->kit->get_id();
+		$kit_id = Plugin::$instance->kits_manager->get_active_kit()->get_id();
 
 		return Atomic_Styles_Utils::generate_id( 'g-' . $kit_id . '-', $existing_ids );
 	}

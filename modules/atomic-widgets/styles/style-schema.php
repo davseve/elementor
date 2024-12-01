@@ -10,6 +10,7 @@ use Elementor\Modules\AtomicWidgets\PropTypes\Primitives\Number_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Size_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Primitives\String_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropTypes\Stroke_Prop_Type;
+use Elementor\Modules\AtomicWidgets\PropTypes\Union_Prop_Type;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly.
@@ -25,6 +26,8 @@ class Style_Schema {
 			self::get_border_props(),
 			self::get_background_props(),
 			self::get_effects_props(),
+			self::get_layout_props(),
+			self::get_alignment_props(),
 		);
 	}
 
@@ -62,6 +65,7 @@ class Style_Schema {
 
 	private static function get_typography_props() {
 		return [
+			'font-family' => String_Prop_Type::make(),
 			'font-weight' => String_Prop_Type::make()->enum([
 				'100',
 				'200',
@@ -117,8 +121,12 @@ class Style_Schema {
 
 	private static function get_border_props() {
 		return [
-			'border-radius' => Border_Radius_Prop_Type::make(),
-			'border-width' => Border_Width_Prop_Type::make(),
+			'border-radius' => Union_Prop_Type::make()->add_prop_type(
+				Size_Prop_Type::make()
+			)->add_prop_type(
+				Border_Radius_Prop_Type::make()
+			),
+			'border-width' => Union_Prop_Type::make()->add_prop_type( Size_Prop_Type::make() )->add_prop_type( Border_Width_Prop_Type::make() ),
 			'border-color' => Color_Prop_Type::make(),
 			'border-style' => String_Prop_Type::make()->enum([
 				'none',
@@ -144,6 +152,86 @@ class Style_Schema {
 	private static function get_effects_props() {
 		return [
 			'box-shadow' => Box_Shadow_Prop_Type::make(),
+		];
+	}
+
+	private static function get_layout_props() {
+		return [
+			'display' => String_Prop_Type::make()->enum([
+				'block',
+				'inline',
+				'inline-block',
+				'flex',
+				'inline-flex',
+				'grid',
+				'inline-grid',
+				'flow-root',
+				'none',
+				'contents',
+			]),
+			'flex-direction' => String_Prop_Type::make()->enum([
+				'row',
+				'row-reverse',
+				'column',
+				'column-reverse',
+			]),
+			'gap' => Size_Prop_Type::make(),
+			'flex-wrap' => String_Prop_Type::make()->enum([
+				'wrap',
+				'nowrap',
+				'wrap-reverse',
+			]),
+			'flex-grow' => Number_Prop_Type::make(),
+			'flex-shrink' => Number_Prop_Type::make(),
+			'flex-basis' => Size_Prop_Type::make(),
+		];
+	}
+
+	private static function get_alignment_props() {
+		return [
+			'justify-content' => String_Prop_Type::make()->enum([
+				'center',
+				'start',
+				'end',
+				'flex-start',
+				'flex-end',
+				'left',
+				'right',
+				'normal',
+				'space-between',
+				'space-around',
+				'space-evenly',
+				'stretch',
+			]),
+			'align-items' => String_Prop_Type::make()->enum([
+				'normal',
+				'stretch',
+				'center',
+				'start',
+				'end',
+				'flex-start',
+				'flex-end',
+				'self-start',
+				'self-end',
+				'anchor-center',
+			]),
+			'align-self' => String_Prop_Type::make()->enum([
+				'auto',
+				'normal',
+				'center',
+				'start',
+				'end',
+				'self-start',
+				'self-end',
+				'flex-start',
+				'flex-end',
+				'anchor-center',
+				'baseline',
+				'first baseline',
+				'last baseline',
+				'stretch',
+			]),
+			'order' => Number_Prop_Type::make(),
 		];
 	}
 }
