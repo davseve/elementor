@@ -127,7 +127,6 @@ jobs:
 #          wp-now cli "wp elementor experiments activate e_optimized_css_loading"
       - name: Install playwright/test
         run: |
-          npm run test:setup:playwright
           npx playwright install chromium
       - name: Run Playwright tests
         env:
