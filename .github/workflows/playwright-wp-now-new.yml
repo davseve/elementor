@@ -1,4 +1,4 @@
-name: Playwright wp-now new
+name: Playwright
 
 on:
   pull_request:
@@ -9,6 +9,8 @@ on:
       - 'bin/**'
       - '.gitignore'
       - 'docs/**'
+  schedule:
+    - cron: '30 08 * * 0,1,2,3,4,5'
   workflow_dispatch:
     inputs:
       reporter:
@@ -16,7 +18,7 @@ on:
         description: 'Select a reporter'
         type: choice
         options:
-          - allure-playwright,list
+          - allure-playwright
           - html
           - blob
           - list
@@ -35,6 +37,9 @@ on:
         required: true
         description: 'Cancel tests when one of them fails'
         default: false
+      tag:
+        description: 'Provide @tag or a keyword'
+        required: false
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:
@@ -43,146 +48,124 @@ concurrency:
 
 jobs:
   build-plugin:
-#    if: startsWith( github.repository, 'elementor/' )
-    name: Build Elementor Pro
+    name: Build plugin
     uses: ./.github/workflows/build.yml
-
   Playwright:
-    name: Playwright test - ${{ matrix.shardIndex }} on PHP 7.4
+    name: Playwright test - ${{ matrix.shardIndex }} on PHP 8.0
+    runs-on: ubuntu-latest
     needs: [build-plugin]
-    if: ${{ github.event.pull_request.title == null || needs.build-plugin.outputs.changelog_diff }}
-    runs-on: ubuntu-22.04
+    if: ${{ ( github.event.pull_request.title == null || needs.build-plugin.outputs.changelog_diff ) && github.event.inputs.tag == '' }}
     strategy:
       fail-fast: ${{ inputs.fail_fast || false }}
       matrix:
-        shardIndex: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50 ]
-        shardTotal: [ 50 ]
+        shardIndex: [ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ]
+        shardTotal: [ 10 ]
         include:
-          - shardIndex: "plugin-tester"
-          - shardIndex: "loop_taxonomy"
-          - shardIndex: "taxonomy_filter_1"
-          - shardIndex: "taxonomy_filter_2"
-          - shardIndex: "taxonomy_filter_3"
-          - shardIndex: "wc_archive_styling_1"
-          - shardIndex: "wc_archive_styling_2"
-          - shardIndex: "wc_product_styling_1"
-          - shardIndex: "wc_product_styling_2"
+          - shardIndex: "elements-regression"
     steps:
       - name: Checkout source code
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
       - name: Install Node.js 20.x
         uses: actions/setup-node@v4
         with:
           node-version: 20.x
           cache: 'npm'
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          export PUPPETEER_SKIP_DOWNLOAD=true
           npm ci
           sed -i -e "s/image: 'mariadb:lts'/image: 'mariadb:11.2.4-jammy'/g" node_modules/@wordpress/env/lib/build-docker-compose-config.js
-      - name: Download Elementor Pro build artifact
+      - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: ${{ needs.build-plugin.outputs.artifact_name }}
-          path: ./
-      - name: Unzip Elementor Pro
-        run: unzip -q ${{ needs.build-plugin.outputs.artifact_name }}.zip
-      - name: Download and unzip Elementor Core
-        run: |
-          curl --location -o ./elementor-core.zip https://downloads.wordpress.org/plugin/elementor.latest-stable.zip
-          unzip -q ./elementor-core.zip
+          path: ./build
+#      - name: Update wp-env.json file
+#        env:
+#          PHP_VERSION: '8.0'
+#          WP_CORE_VERSION: 'latest'
+#        run: node ./.github/scripts/build-wp-env.js
+#      - name: Install WordPress environment
+#        run: |
+#          npm run start-local-server
+#      - name: Update wordpress to nightly build
+#        if: ${{ github.event_name == 'schedule' }}
+#        run: npx wp-env run cli wp core update https://wordpress.org/nightly-builds/wordpress-latest.zip
+#      - name: Setup test data
+#        run: npm run test:setup:playwright
+#      - name: WordPress debug information
+#        run: |
+#          npx wp-env run cli wp core version
+#          npx wp-env run cli wp --info
       - name: Install WordPress environment
         run: |
           npx wp-now start --php=8.0 --port=8888 --blueprint=./blueprint.json &
-      #      - name: Update wp-env.json file
-      #        env:
-      #          PHP_VERSION: '8.0'
-      #          WP_CORE_VERSION: 'latest'
-      #        run: node ./.github/scripts/build-wp-env.js
-      #      - name: Install WordPress environment
-      #        run: |
-      #          npm run start-local-server
-      #      - name: Import Sample Data
-      #        run: |
-      #          npm run import-sample-data
-      #      - name: Import Taxonomy Sample Data
-      #        run: |
-      #          npm run import-taxonomy-sample-data
-      - name: Run SQL query to activate Pro
-        env:
-          E2E_PRO_LICENSE: ${{ secrets.E2E_PRO_LICENSE }}
-        run: |
-          node ./.github/scripts/playwright-sql-query.js
-          npx wp-env run cli wp db query < query.sql
-      - name: Activate performance experiments
-        run: |
-          npx wp-env run cli bash -c 'bash elementor-config/setup-experiments.sh'
-      - name: Reset DB properties
-        run: |
-          npx wp-env run cli bash -c 'bash elementor-config/reset-db-props.sh'
-      - name: Deactivate plugins
-        run: |
-          npm run deactivate-plugins
-      - name: WordPress debug information
-        run: |
-          ls -l
-      #          npx wp-env run cli wp plugin list
-      #          npx wp-env run cli wp core version
-      #          npx wp-env run cli wp --info
-      - name: Test setup for plugin tester
-        if: ${{ matrix.shardIndex == 'plugin-tester' }}
-        run: npm run test:setup
+
       - name: Install playwright/test
-        run: npx playwright install chromium
-      - name: Run Playwright Plugin Tester
-        if: ${{ matrix.shardIndex == 'plugin-tester' }}
-        run: npm run test:playwright -- --grep=@pluginTester --reporter=${{ inputs.reporter || 'list,github' }}
+        run: |
+          npx playwright install chromium
       - name: Run Playwright tests
-        if: ${{
-          matrix.shardIndex != 'plugin-tester' &&
-          matrix.shardIndex != 'loop_taxonomy' &&
-          matrix.shardIndex != 'taxonomy_filter_1' &&
-          matrix.shardIndex != 'taxonomy_filter_2' &&
-          matrix.shardIndex != 'taxonomy_filter_3' &&
-          matrix.shardIndex != 'wc_archive_styling_1' &&
-          matrix.shardIndex != 'wc_archive_styling_2' &&
-          matrix.shardIndex != 'wc_product_styling_1' &&
-          matrix.shardIndex != 'wc_product_styling_2'
-          }}
-        run: npm run test:playwright -- --grep-invert="@latest|@pluginTester|@essentialLicense|@loop_taxonomy|@taxonomyFilter|@woocommerce-archive|@woocommerce-product" --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright Loop Taxonomy tests
-        if: ${{ matrix.shardIndex == 'loop_taxonomy' }}
-        run: npm run test:playwright -- --grep="@loop_taxonomy" --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright Taxonomy Filter 1 tests
-        if: ${{ matrix.shardIndex == 'taxonomy_filter_1' }}
-        run: npm run test:playwright -- --grep="@taxonomyFilter-1" --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright Taxonomy Filter 2 tests
-        if: ${{ matrix.shardIndex == 'taxonomy_filter_2' }}
-        run: npm run test:playwright -- --grep="@taxonomyFilter-2" --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright Taxonomy Filter 3 tests
-        if: ${{ matrix.shardIndex == 'taxonomy_filter_3' }}
-        run: npm run test:playwright -- --grep="@taxonomyFilter-3" --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright WooCommerce archive styling tests - 1
-        if: ${{ matrix.shardIndex == 'wc_archive_styling_1' }}
-        run: npm run test:playwright -- --grep="@woocommerce-archive-1" --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright WooCommerce archive styling tests - 2
-        if: ${{ matrix.shardIndex == 'wc_archive_styling_2' }}
-        run: npm run test:playwright -- --grep="@woocommerce-archive-2" --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright WooCommerce product styling tests - 1
-        if: ${{ matrix.shardIndex == 'wc_product_styling_1' }}
-        run: npm run test:playwright -- --grep="@woocommerce-product-1" --reporter=${{ inputs.reporter || 'list,github' }}
-      - name: Run Playwright WooCommerce product styling tests - 2
-        if: ${{ matrix.shardIndex == 'wc_product_styling_2' }}
-        run: npm run test:playwright -- --grep="@woocommerce-product-2" --reporter=${{ inputs.reporter || 'list,github' }}
+        if: ${{ matrix.shardIndex != 'elements-regression' }}
+        run: npm run test:playwright  -- --shard=${{ matrix.shardIndex }}/${{ matrix.shardTotal }} --reporter=${{ inputs.reporter || 'list,github' }}
+      - name: Run element regression tests
+        if: ${{ matrix.shardIndex == 'elements-regression' }}
+        run: npm run test:playwright:elements-regression -- --reporter=${{ inputs.reporter || 'list,github' }}
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: playwright-test-results-${{ matrix.shardIndex }}
           path: ${{ inputs.path-to-results || 'test-results/' }}
-          retention-days: 3
           if-no-files-found: ignore
+          retention-days: 2
+  PlaywrightWithTag:
+    name: Playwright test - tagged tests on PHP 8.0
+    runs-on: ubuntu-latest
+    needs: [ build-plugin ]
+    if: ${{ github.event.inputs.tag }}
+    steps:
+      - name: Checkout source code
+        uses: actions/checkout@v4
+      - name: Install Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+      - name: Install dependencies
+        run: |
+          npm ci
+          sed -i -e "s/image: 'mariadb:lts'/image: 'mariadb:11.2.4-jammy'/g" node_modules/@wordpress/env/lib/build-docker-compose-config.js
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.build-plugin.outputs.artifact_name }}
+          path: ./build
+      - name: Update wp-env.json file
+        env:
+          PHP_VERSION: '8.0'
+          WP_CORE_VERSION: 'latest'
+        run: node ./.github/scripts/build-wp-env.js
+      - name: Install WordPress environment
+        run: |
+          npm run start-local-server
+      - name: Setup test data
+        run: npm run test:setup:playwright
+      - name: WordPress debug information
+        run: |
+          npx wp-env run cli wp core version
+          npx wp-env run cli wp --info
+      - name: Install playwright/test
+        run: |
+          npx playwright install chromium
+      - name: Run Playwright tests
+        run: |
+          npm run test:playwright -- --grep="${{ inputs.tag }}" --reporter=list,allure-playwright
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: playwright-test-results-tagged-tests
+          path: ${{ inputs.path-to-results || 'test-results/' }}
+          if-no-files-found: ignore
+          retention-days: 2
+
 
   test-result:
     needs: Playwright
@@ -192,6 +175,28 @@ jobs:
     steps:
       - name: Test status
         run: echo "Test status is - ${{ needs.Playwright.result }}"
-      - name: Check Playwright matrix status
-        if: ${{ needs.Playwright.result != 'success' && needs.Playwright.result != 'skipped' }}
-        run: exit 1
+      - name: Checkout source code
+        if: ${{ needs.Playwright.result == 'failure' && github.event_name == 'schedule' }}
+        uses: actions/checkout@v4
+#      - name: Send slack message
+#        if: ${{ needs.Playwright.result == 'failure' && github.event_name == 'schedule' }}
+#        uses: ./.github/workflows/post-to-slack
+#        with:
+#          SLACK_BOT_TOKEN: ${{ secrets.SLACK_TOKEN }}
+#          SLACK_TAG_CHANNELS: ${{ secrets.TEST_AUTOMATION_RESULTS }}
+#          PAYLOAD: |
+#            {
+#              "text": "Elementor Core: Playwright with WordPress nightly has failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+#              "blocks": [
+#                {
+#                  "type": "section",
+#                  "text": {
+#                    "type": "mrkdwn",
+#                    "text": "Elementor Core: Playwright with WordPress nightly failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+#                  }
+#                }
+#              ]
+#            }
+#      - name: Check Playwright matrix status
+#        if: ${{ needs.Playwright.result != 'success' && needs.Playwright.result != 'skipped' }}
+#        run: exit 1
