@@ -803,6 +803,12 @@ class Svg_Sanitizer {
 		return preg_replace( '/\r|\n/', '', $content );
 	}
 
+	/**
+	 * Convert CDATA children to escaped text so saveXML() cannot re-emit
+	 * a CDATA section that an HTML parser would treat as a breakout.
+	 *
+	 * @param \DOMElement $element
+	 */
 	private function sanitize_element_child_nodes( \DOMElement $element ) {
 		$child_nodes = iterator_to_array( $element->childNodes );
 
@@ -813,12 +819,21 @@ class Svg_Sanitizer {
 			}
 
 			if ( XML_CDATA_SECTION_NODE === $child->nodeType ) {
-				$element->removeChild( $child );
-				continue;
+				$text_node = $element->ownerDocument->createTextNode(
+					$this->sanitize_text_node_value( $child->nodeValue )
+				);
+				$element->replaceChild( $text_node, $child );
 			}
 		}
 	}
 
+	/**
+	 * Strip CDATA markers and angle brackets from text so inlined SVG
+	 * cannot introduce live HTML markup.
+	 *
+	 * @param string $value
+	 * @return string
+	 */
 	private function sanitize_text_node_value( $value ) {
 		if ( '' === $value ) {
 			return $value;
@@ -826,6 +841,7 @@ class Svg_Sanitizer {
 
 		$value = str_replace( [ '<![CDATA[', ']]>' ], '', $value );
 		$value = str_replace( [ '<', '>' ], '', $value );
+
 		return $value;
 	}
 }

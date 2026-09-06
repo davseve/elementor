@@ -72,17 +72,25 @@ class Test_Svg extends Elementor_Test_Base {
 	 * @dataProvider cdata_breakout_data_provider
 	 */
 	public function test_sanitize__does_not_keep_markup_inside_cdata( $svg_content ) {
-		// Arrange.
 		/** @var Svg $svg_handler */
 		$svg_handler = Plugin::$instance->uploads_manager->get_file_type_handlers( 'svg' );
 
-		// Act.
 		$sanitized = $svg_handler->sanitizer( $svg_content );
 
-		// Assert.
 		$this->assertStringNotContainsString( '<![CDATA[', $sanitized );
 		$this->assertStringNotContainsString( '<img', $sanitized );
 		$this->assertStringNotContainsString( '<script', $sanitized );
+	}
+
+	public function test_sanitize__converts_cdata_to_escaped_text() {
+		/** @var Svg $svg_handler */
+		$svg_handler = Plugin::$instance->uploads_manager->get_file_type_handlers( 'svg' );
+
+		$svg_content = '<svg xmlns="http://www.w3.org/2000/svg"><desc><![CDATA[Hello <world>]]></desc></svg>';
+		$sanitized = $svg_handler->sanitizer( $svg_content );
+
+		$this->assertStringNotContainsString( '<![CDATA[', $sanitized );
+		$this->assertStringContainsString( 'Hello world', $sanitized );
 	}
 
 	public function cdata_breakout_data_provider() {
