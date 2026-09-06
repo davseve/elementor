@@ -728,20 +728,15 @@ class Svg_Sanitizer {
 	 */
 	private function sanitize_elements() {
 		$elements = $this->svg_dom->getElementsByTagName( '*' );
-		// loop through all elements
-		// we do this backwards so we don't skip anything if we delete a node
-		// see comments at: http://php.net/manual/en/class.domnamednodemap.php
 		for ( $index = $elements->length - 1; $index >= 0; $index-- ) {
 			/**
 			 * @var \DOMElement $current_element
 			 */
 			$current_element = $elements->item( $index );
-			// If the tag isn't in the whitelist, remove it and continue with next iteration
 			if ( ! $this->is_allowed_tag( $current_element ) ) {
 				continue;
 			}
 
-			// validate element attributes
 			$this->validate_allowed_attributes( $current_element );
 
 			$this->strip_xlinks( $current_element );
