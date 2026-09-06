@@ -749,6 +749,8 @@ class Svg_Sanitizer {
 			if ( 'use' === strtolower( $current_element->tagName ) ) { // phpcs:ignore -- php DomDocument
 				$this->validate_use_tag( $current_element );
 			}
+
+			$this->sanitize_element_child_nodes( $current_element );
 		}
 	}
 
@@ -804,5 +806,32 @@ class Svg_Sanitizer {
 	private function strip_line_breaks( $content ) {
 		// Remove line breaks.
 		return preg_replace( '/\r|\n/', '', $content );
+	}
+
+	private function sanitize_element_child_nodes( \DOMElement $element ) {
+		$child_nodes = iterator_to_array( $element->childNodes );
+
+		foreach ( $child_nodes as $child ) {
+			if ( XML_TEXT_NODE === $child->nodeType ) {
+				$child->nodeValue = $this->sanitize_text_node_value( $child->nodeValue );
+				continue;
+			}
+
+			if ( XML_CDATA_SECTION_NODE === $child->nodeType ) {
+				$element->removeChild( $child );
+				continue;
+			}
+		}
+	}
+
+	private function sanitize_text_node_value( $value ) {
+		if ( '' === $value ) {
+			return $value;
+		}
+		// CDATA markers must not survive into inlined HTML.
+		$value = str_replace( [ '<![CDATA[', ']]>' ], '', $value );
+		// No angle brackets — they become live markup in an HTML parser.
+		$value = str_replace( [ '<', '>' ], '', $value );
+		return $value;
 	}
 }
