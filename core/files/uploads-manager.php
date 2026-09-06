@@ -206,7 +206,7 @@ class Uploads_Manager extends Base_Object {
 	 */
 	public function handle_elementor_wp_media_upload( $file ) {
 		// If it isn't a file uploaded by Elementor, we do not intervene.
-		if ( ! $this->is_elementor_upload() ) {
+		if ( ! $this->is_elementor_wp_media_upload() ) {
 			return $file;
 		}
 
