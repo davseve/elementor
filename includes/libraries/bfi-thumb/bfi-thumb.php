@@ -424,10 +424,31 @@ if ( ! class_exists( 'BFI_Thumb_1_3' ) ) {
 		 * @return string|array
 		 */
 		public static function thumb( $url, $params = array(), $single = true ) {
-			extract( $params );
+			$allowed_param_keys = [
+				'width',
+				'height',
+				'opacity',
+				'color',
+				'grayscale',
+				'crop',
+				'negate',
+				'crop_only',
+				'crop_x',
+				'crop_y',
+				'crop_width',
+				'crop_height',
+				'quality',
+			];
+			$params = array_intersect_key( (array) $params, array_flip( $allowed_param_keys ) );
+
+			foreach ( $allowed_param_keys as $param_key ) {
+				if ( array_key_exists( $param_key, $params ) ) {
+					$$param_key = $params[ $param_key ];
+				}
+			}
 
 			//validate inputs
-			if ( ! $url ) {
+			if ( ! $url || preg_match( '/^\s*(phar|php|data|expect|zip|glob|compress\.zlib|compress\.bzip2):/i', (string) $url ) ) {
 				return false;
 			}
 
@@ -455,6 +476,36 @@ if ( ! class_exists( 'BFI_Thumb_1_3' ) ) {
 			if ( empty( $img_path ) ) {
 				return $url;
 			}
+
+			$img_path = wp_normalize_path( $img_path );
+
+			if ( preg_match( '/^\w+:\/\//', $img_path ) || false !== stripos( $img_path, 'phar:' ) ) {
+				return $url;
+			}
+
+			$real_img_path = realpath( $img_path );
+			$allowed_roots = array_filter( [
+				realpath( $upload_dir ),
+				realpath( $theme_dir ),
+			] );
+			$is_inside_allowed_root = false;
+
+			if ( $real_img_path ) {
+				foreach ( $allowed_roots as $allowed_root ) {
+					$allowed_root = trailingslashit( wp_normalize_path( $allowed_root ) );
+
+					if ( 0 === strpos( wp_normalize_path( $real_img_path ), $allowed_root ) ) {
+						$is_inside_allowed_root = true;
+						break;
+					}
+				}
+			}
+
+			if ( ! $is_inside_allowed_root ) {
+				return $url;
+			}
+
+			$img_path = wp_normalize_path( $real_img_path );
 
 			// check if img path exists, and is an image indeed
 			if ( ! @file_exists( $img_path ) || ! getimagesize( $img_path ) ) {
@@ -572,6 +623,7 @@ if ( ! class_exists( 'BFI_Thumb_1_3' ) ) {
 
 			// use this to check if cropped image already exists, so we can return that instead
 			$dst_rel_path = str_replace( '.' . $ext, '', basename( $img_path ) );
+			$dst_rel_path = str_replace( [ '%', '[', ']' ], '', sanitize_file_name( $dst_rel_path ) );
 
 			// If opacity is set, change the image type to png
 			if ( isset( $opacity ) ) {
