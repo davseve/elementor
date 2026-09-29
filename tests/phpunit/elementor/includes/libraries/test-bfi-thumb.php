@@ -12,6 +12,8 @@ class Test_BFI_Thumb extends Elementor_Test_Base {
 	public function setUp(): void {
 		parent::setUp();
 
+		require_once ELEMENTOR_PATH . 'includes/libraries/bfi-thumb/bfi-thumb.php';
+
 		$upload_info = wp_upload_dir();
 		$this->upload_dir = $upload_info['basedir'];
 		$this->upload_url = $upload_info['baseurl'];
@@ -130,7 +132,7 @@ class Test_BFI_Thumb extends Elementor_Test_Base {
 
 		$result = bfi_thumb( $malicious_path, [ 'width' => 100 ] );
 
-		$this->assertSame( $malicious_path, $result );
+		$this->assertFalse( $result );
 	}
 
 	public function test_rejects_path_traversal_attempt() {
@@ -202,16 +204,17 @@ class Test_BFI_Thumb extends Elementor_Test_Base {
 
 		$this->create_test_image( $target_path );
 
-		if ( function_exists( 'symlink' ) && @symlink( $target_path, $symlink_path ) ) {
+		if ( function_exists( 'symlink' ) && ! file_exists( $symlink_path ) && @symlink( $target_path, $symlink_path ) ) {
 			$url = $this->upload_url . '/symlink-test.jpg';
 			$result = bfi_thumb( $url, [ 'width' => 100 ] );
 
 			$this->assertSame( $url, $result );
 
 			@unlink( $symlink_path );
+			@unlink( $target_path );
+		} else {
+			$this->markTestSkipped( 'Symlink creation not available or failed' );
 		}
-
-		@unlink( $target_path );
 	}
 
 	private function create_test_image( $path ) {
