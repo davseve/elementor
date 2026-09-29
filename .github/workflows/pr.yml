@@ -43,7 +43,7 @@ jobs:
   detect-changes:
     name: Detect changes
     runs-on: ubuntu-22.04
-    if: startsWith( github.repository, 'elementor/' )
+  #  if: startsWith( github.repository, 'elementor/' )
     outputs:
       js: ${{ steps.filter.outputs.js }}
       php: ${{ steps.filter.outputs.php }}
@@ -96,7 +96,7 @@ jobs:
   install:
     name: Install dependencies
     runs-on: ubuntu-22.04
-    if: startsWith( github.repository, 'elementor/' )
+  #  if: startsWith( github.repository, 'elementor/' )
     steps:
       - name: Checkout source code
         uses: actions/checkout@v6
@@ -118,7 +118,7 @@ jobs:
     name: Build plugin
     needs: [install]
     runs-on: ubuntu-22.04
-    if: startsWith( github.repository, 'elementor/' )
+  #  if: startsWith( github.repository, 'elementor/' )
     outputs:
       artifact_name: ${{ steps.set_outputs.outputs.artifact_name }}
     steps:
