@@ -31,7 +31,7 @@ class Test_Import extends Elementor_Test_Base {
 	// Elementor content, WP content ( including CPTs - tests, sectests ).
 	public function test_run__import_all() {
 		// Arrange
-		$this->act_as_admin();
+		$this->act_as_admin_or_network_admin();
 		register_post_type( 'tests' );
 		register_post_type( 'sectests' );
 		register_taxonomy( 'tests_tax', [ 'tests' ], [] );
@@ -128,6 +128,8 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_plugins_all_plugins_by_default() {
 		// Arrange
+		$this->act_as_admin_or_network_admin();
+
 		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
 			->setMethods( [ 'install', 'activate' ] )
 			->getMock();
@@ -170,6 +172,8 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_plugins_selected_plugin() {
 		// Arrange
+		$this->act_as_admin_or_network_admin();
+
 		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
 			->setMethods( [ 'install', 'activate' ] )
 			->getMock();
@@ -214,7 +218,7 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_site_settings() {
 		// Arrange
-		$this->act_as_admin();
+		$this->act_as_admin_or_network_admin();
 
 		$previous_active_theme = wp_get_theme();
 
@@ -287,6 +291,105 @@ class Test_Import extends Elementor_Test_Base {
 		$new_settings = $new_active_kit->get_meta( PageManager::META_KEY );
 		$this->assertEquals( $expected_custom_colors, $new_settings['custom_colors'] );
 		$this->assertEquals( $expected_custom_typography, $new_settings['custom_typography'] );
+	}
+
+	public function test_run__import_plugins_throws_when_user_cannot_activate_plugins() {
+		// Arrange
+		$this->act_as_editor();
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->never() )->method( 'install' );
+		$plugins_manager_mock->expects( $this->never() )->method( 'activate' );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [ 'include' => [ 'plugins' ] ] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		// Expect
+		$this->expectException( \Error::class );
+		$this->expectExceptionMessage( Module::PLUGIN_PERMISSIONS_ERROR_KEY );
+
+		// Act
+		$import->run();
+	}
+
+	public function test_run__import_plugins_throws_when_user_cannot_install_missing_plugins() {
+		// Arrange
+		$this->act_as_admin();
+
+		$deny_install_plugins = function ( $allcaps ) {
+			$allcaps['install_plugins'] = false;
+
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $deny_install_plugins );
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->never() )->method( 'install' );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [
+			'include' => [ 'plugins' ],
+			'plugins' => [
+				[
+					'name' => 'Not Installed Plugin',
+					'plugin' => 'not-installed-plugin/not-installed-plugin',
+					'version' => '1.0.0',
+				],
+			],
+		] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		// Expect
+		$this->expectException( \Error::class );
+		$this->expectExceptionMessage( Module::PLUGIN_PERMISSIONS_ERROR_KEY );
+
+		try {
+			// Act
+			$import->run();
+		} finally {
+			remove_filter( 'user_has_cap', $deny_install_plugins );
+		}
+	}
+
+	public function test_run__import_site_settings_does_not_install_theme_without_install_themes_capability() {
+		// Arrange
+		$this->act_as_admin();
+
+		$deny_install_themes = function ( $allcaps ) {
+			$allcaps['install_themes'] = false;
+
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $deny_install_themes );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [ 'include' => [ 'settings' ] ] );
+
+		$theme_upgrader_mock = $this->getMockBuilder( \Theme_Upgrader::class )
+			->onlyMethods( [ 'install' ] )
+			->getMock();
+
+		$theme_upgrader_mock->expects( $this->never() )->method( 'install' );
+
+		$site_settings_runner = $this->getMockBuilder( Site_Settings::class )
+			->onlyMethods( [ 'get_theme_upgrader' ] )
+			->getMock();
+		$site_settings_runner->method( 'get_theme_upgrader' )->willReturn( $theme_upgrader_mock );
+
+		$import->register( $site_settings_runner );
+
+		// Act
+		$result = $import->run();
+
+		remove_filter( 'user_has_cap', $deny_install_themes );
+
+		// Assert
+		$this->assertCount( 1, $result['theme']['failed'] );
+		$this->assertArrayNotHasKey( 'succeed', $result['theme'] );
 	}
 
 	public function test_run__import_templates_will_be_empty_without_the_pro() {

@@ -2,9 +2,11 @@
 
 namespace Elementor\App\Modules\ImportExportCustomization\Runners\Import;
 
+use Elementor\App\Modules\ImportExportCustomization\Module;
 use Elementor\Core\Utils\Collection;
 use Elementor\Core\Utils\Plugins_Manager;
 use Elementor\Core\Utils\Str;
+use Elementor\Plugin;
 
 class Plugins extends Import_Runner_Base {
 
@@ -63,6 +65,8 @@ class Plugins extends Import_Runner_Base {
 			} )
 			->all();
 
+		$this->ensure_user_can_import_plugins( $slugs );
+
 		if ( ! function_exists( 'request_filesystem_credentials' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -84,5 +88,18 @@ class Plugins extends Import_Runner_Base {
 		$result['plugins'] = $ordered_activated_plugins;
 
 		return $result;
+	}
+
+	private function ensure_user_can_import_plugins( array $slugs ): void {
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			throw new \Error( Module::PLUGIN_PERMISSIONS_ERROR_KEY ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+
+		$installed_plugins = Plugin::$instance->wp->get_plugins()->keys()->all();
+		$has_plugins_to_install = ! empty( array_diff( $slugs, $installed_plugins ) );
+
+		if ( $has_plugins_to_install && ! current_user_can( 'install_plugins' ) ) {
+			throw new \Error( Module::PLUGIN_PERMISSIONS_ERROR_KEY ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
 	}
 }
