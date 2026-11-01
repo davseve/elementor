@@ -24,7 +24,7 @@ class Test_Import extends Elementor_Test_Base {
 	// Elementor content, WP content ( including CPTs - tests, sectests ).
 	public function test_run__import_all() {
 		// Arrange
-		$this->act_as_admin();
+		$this->act_as_admin_or_network_admin();
 		register_post_type( 'tests' );
 		register_post_type( 'sectests' );
 		register_taxonomy( 'tests_tax', [ 'tests' ], [] );
@@ -116,6 +116,8 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_plugins_all_plugins_by_default() {
 		// Arrange
+		$this->act_as_admin_or_network_admin();
+
 		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
 			->setMethods( [ 'install', 'activate' ] )
 			->getMock();
@@ -156,8 +158,32 @@ class Test_Import extends Elementor_Test_Base {
 		$this->assertEquals( [ 'plugins' => [] ], array_pop( $import_sessions_options )['runners'] );
 	}
 
+	public function test_run__import_plugins_throws_when_user_cannot_activate_plugins() {
+		// Arrange
+		$this->act_as_editor();
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->never() )->method( 'install' );
+		$plugins_manager_mock->expects( $this->never() )->method( 'activate' );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [ 'include' => [ 'plugins' ] ] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		// Expect
+		$this->expectException( \Error::class );
+		$this->expectExceptionMessage( Module::PLUGIN_PERMISSIONS_ERROR_KEY );
+
+		// Act
+		$import->run();
+	}
+
 	public function test_run__import_plugins_selected_plugin() {
 		// Arrange
+		$this->act_as_admin_or_network_admin();
+
 		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
 			->setMethods( [ 'install', 'activate' ] )
 			->getMock();
@@ -202,7 +228,7 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_site_settings() {
 		// Arrange
-		$this->act_as_admin();
+		$this->act_as_admin_or_network_admin();
 
 		$previous_active_theme = wp_get_theme();
 

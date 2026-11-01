@@ -307,12 +307,30 @@ class Site_Settings extends Import_Runner_Base {
 		}
 
 		try {
+			if ( ! current_user_can( 'switch_themes' ) ) {
+				$result['failed'][ $theme_slug ] = sprintf(
+					/* translators: %s: Theme name. */
+					__( 'You do not have permission to activate theme: %s', 'elementor' ),
+					$theme_name
+				);
+				return $result;
+			}
+
 			if ( wp_get_theme( $theme_slug )->exists() ) {
 				$this->activate_theme( $theme_slug );
 				$this->activated_theme = $theme_slug;
 				$result['succeed'][ $theme_slug ] = sprintf(
 					/* translators: %s: Theme name. */
 					__( 'Theme: %s has already been installed and activated', 'elementor' ),
+					$theme_name
+				);
+				return $result;
+			}
+
+			if ( ! current_user_can( 'install_themes' ) ) {
+				$result['failed'][ $theme_slug ] = sprintf(
+					/* translators: %s: Theme name. */
+					__( 'You do not have permission to install theme: %s', 'elementor' ),
 					$theme_name
 				);
 				return $result;
