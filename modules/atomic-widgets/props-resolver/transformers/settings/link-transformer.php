@@ -2,6 +2,7 @@
 
 namespace Elementor\Modules\AtomicWidgets\PropsResolver\Transformers\Settings;
 
+use Elementor\Modules\AtomicWidgets\PropTypes\Link_Prop_Type;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Props_Resolver_Context;
 use Elementor\Modules\AtomicWidgets\PropsResolver\Transformer_Base;
 
@@ -23,9 +24,28 @@ class Link_Transformer extends Transformer_Base {
 	}
 
 	private function extract_url( $value ): ?string {
-		$destination = $value['destination'];
-		$post = is_numeric( $destination ) ? get_post( $destination ) : null;
+		if ( ! array_key_exists( 'destination', $value ) ) {
+			return null;
+		}
 
-		return $post ? get_permalink( $post ) : $destination;
+		$destination = Link_Prop_Type::sanitize_destination( $value['destination'] );
+
+		if ( is_numeric( $destination ) ) {
+			$post = get_post( $destination );
+
+			if ( ! $post ) {
+				return (string) $destination;
+			}
+
+			$permalink = get_permalink( $post );
+
+			return is_string( $permalink ) && '' !== $permalink ? $permalink : null;
+		}
+
+		if ( ! is_string( $destination ) || '' === $destination ) {
+			return null;
+		}
+
+		return $destination;
 	}
 }

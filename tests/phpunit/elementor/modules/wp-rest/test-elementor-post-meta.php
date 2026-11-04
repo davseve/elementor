@@ -170,4 +170,97 @@ class Test_Elementor_Post_Meta extends Elementor_Test_Base {
 		// Assert
 		$this->assertEquals( 200, $data->get_status(), 'Status should be 200' );
 	}
+
+	public function test_sanitize_elementor_data__keeps_allowed_link_destinations_for_contributor() {
+		// Arrange.
+		$this->act_as( 'contributor' );
+		$destinations = [
+			'https://example.com/welcome',
+			'mailto:user@example.com',
+			'/welcome',
+			'#welcome',
+			'15',
+		];
+
+		// Act.
+		$stored = json_decode( $this->post_meta->sanitize_elementor_data( $this->elementor_data_with_destinations( $destinations ) ), true );
+
+		// Assert.
+		$this->assertSame( $destinations, $this->destinations_from( $stored ) );
+	}
+
+	public function test_sanitize_elementor_data__clears_disallowed_link_protocol_for_contributor() {
+		// Arrange.
+		$this->act_as( 'contributor' );
+		$stored_input = $this->elementor_data_with_destinations( [
+			'notascheme:value',
+			[
+				'$$type' => 'url',
+				'value' => 'notascheme:value',
+			],
+			[
+				'$$type' => 'query',
+				'value' => [
+					'id' => 15,
+					'label' => 'Welcome',
+				],
+			],
+		] );
+
+		// Act.
+		$stored = json_decode( $this->post_meta->sanitize_elementor_data( $stored_input ), true );
+
+		// Assert.
+		$destinations = $this->destinations_from( $stored );
+		$this->assertSame( '', $destinations[0] );
+		$this->assertSame( '', $destinations[1]['value'] );
+		$this->assertSame( 15, $destinations[2]['value']['id'] );
+	}
+
+	public function test_sanitize_elementor_data__keeps_link_destination_for_unfiltered_user() {
+		// Arrange.
+		$this->act_as_admin();
+		$stored_input = $this->elementor_data_with_destinations( [ 'notascheme:value' ] );
+
+		// Act.
+		$stored = $this->post_meta->sanitize_elementor_data( $stored_input );
+
+		// Assert.
+		$this->assertSame( $stored_input, $stored );
+	}
+
+	private function elementor_data_with_destinations( array $destinations ): string {
+		$elements = [];
+
+		foreach ( $destinations as $index => $destination ) {
+			$elements[] = [
+				'id' => 'button-' . $index,
+				'elType' => 'widget',
+				'widgetType' => 'e-button',
+				'settings' => [
+					'link' => [
+						'$$type' => 'link',
+						'value' => [
+							'destination' => $destination,
+							'isTargetBlank' => false,
+							'tag' => 'a',
+						],
+					],
+				],
+				'elements' => [],
+			];
+		}
+
+		return wp_json_encode( $elements );
+	}
+
+	private function destinations_from( array $elements ): array {
+		$destinations = [];
+
+		foreach ( $elements as $element ) {
+			$destinations[] = $element['settings']['link']['value']['destination'];
+		}
+
+		return $destinations;
+	}
 }
