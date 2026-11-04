@@ -214,6 +214,27 @@ class Test_Elementor_Post_Meta extends Elementor_Test_Base {
 		$this->assertSame( '', $destinations[1] );
 	}
 
+	public function test_rest_update__keeps_link_destination_added_by_admin() {
+		// Arrange.
+		$this->act_as_admin();
+		$elementor_data = $this->elementor_data_with_destinations( [
+			'notascheme:value',
+		] );
+		$request = new \WP_REST_Request( 'POST', '/wp/v2/posts/' . $this->post_id );
+		$request->set_param( 'meta', [
+			'_elementor_edit_mode' => 'builder',
+			'_elementor_data' => $elementor_data,
+		] );
+
+		// Act.
+		$response = rest_get_server()->dispatch( $request );
+
+		// Assert.
+		$this->assertSame( 200, $response->get_status() );
+		$saved = json_decode( get_post_meta( $this->post_id, '_elementor_data', true ), true );
+		$this->assertSame( [ 'notascheme:value' ], $this->destinations_from( $saved ) );
+	}
+
 	public function test_sanitize_elementor_data__keeps_link_destination_for_unfiltered_user() {
 		// Arrange.
 		$this->act_as_admin();
