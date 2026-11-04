@@ -20,7 +20,7 @@ class Test_Link_Transformer extends Elementor_Test_Base {
 
 	private const ALLOWED_ANCHOR_DESTINATION = '#welcome';
 
-	private const DISALLOWED_PROTOCOL_DESTINATION = 'notascheme:value';
+	private const SAVED_CUSTOM_PROTOCOL_DESTINATION = 'whatsapp:send?phone=15551212';
 
 	public function test_transform__keeps_allowed_destinations() {
 		// Arrange.
@@ -41,18 +41,18 @@ class Test_Link_Transformer extends Elementor_Test_Base {
 		}
 	}
 
-	public function test_transform__drops_destination_with_disallowed_protocol() {
+	public function test_transform__keeps_saved_destination() {
 		// Arrange.
 		$transformer = new Link_Transformer();
 
 		// Act.
 		$result = $transformer->transform(
-			$this->link_value( self::DISALLOWED_PROTOCOL_DESTINATION ),
+			$this->link_value( self::SAVED_CUSTOM_PROTOCOL_DESTINATION ),
 			Props_Resolver_Context::make()
 		);
 
 		// Assert.
-		$this->assertArrayNotHasKey( 'href', $result );
+		$this->assertSame( self::SAVED_CUSTOM_PROTOCOL_DESTINATION, $result['href'] );
 	}
 
 	public function test_transform__resolves_numeric_post_destination_to_permalink() {
