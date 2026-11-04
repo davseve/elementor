@@ -18,28 +18,6 @@ class Link_Prop_Type extends Object_Prop_Type {
 		return 'link';
 	}
 
-	public static function sanitize_destination( $destination ) {
-		if ( is_array( $destination ) && 'url' === ( $destination['$$type'] ?? '' ) && is_string( $destination['value'] ?? null ) ) {
-			$destination['value'] = self::sanitize_url_destination( $destination['value'] );
-
-			return $destination;
-		}
-
-		if ( ! is_string( $destination ) ) {
-			return $destination;
-		}
-
-		return self::sanitize_url_destination( $destination );
-	}
-
-	private static function sanitize_url_destination( string $destination ): string {
-		if ( is_numeric( $destination ) ) {
-			return $destination;
-		}
-
-		return esc_url_raw( $destination );
-	}
-
 	protected function define_shape(): array {
 		$target_blank_dependencies = Dependency_Manager::make()
 			->where( [

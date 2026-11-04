@@ -175,11 +175,19 @@ class Test_Elementor_Post_Meta extends Elementor_Test_Base {
 		// Arrange.
 		$this->act_as( 'contributor' );
 		$destinations = [
-			'https://example.com/welcome',
-			'mailto:user@example.com',
-			'/welcome',
-			'#welcome',
-			'15',
+			$this->url_destination( 'https://example.com/welcome' ),
+			$this->url_destination( 'mailto:user@example.com' ),
+			$this->url_destination( '/welcome' ),
+			$this->url_destination( '#welcome' ),
+			[
+				'$$type' => 'query',
+				'value' => [
+					'id' => [
+						'$$type' => 'number',
+						'value' => 15,
+					],
+				],
+			],
 		];
 
 		// Act.
@@ -193,18 +201,8 @@ class Test_Elementor_Post_Meta extends Elementor_Test_Base {
 		// Arrange.
 		$this->act_as( 'contributor' );
 		$stored_input = $this->elementor_data_with_destinations( [
+			$this->url_destination( 'notascheme:value' ),
 			'notascheme:value',
-			[
-				'$$type' => 'url',
-				'value' => 'notascheme:value',
-			],
-			[
-				'$$type' => 'query',
-				'value' => [
-					'id' => 15,
-					'label' => 'Welcome',
-				],
-			],
 		] );
 
 		// Act.
@@ -212,9 +210,8 @@ class Test_Elementor_Post_Meta extends Elementor_Test_Base {
 
 		// Assert.
 		$destinations = $this->destinations_from( $stored );
-		$this->assertSame( '', $destinations[0] );
-		$this->assertSame( '', $destinations[1]['value'] );
-		$this->assertSame( 15, $destinations[2]['value']['id'] );
+		$this->assertSame( $this->url_destination( '' ), $destinations[0] );
+		$this->assertSame( '', $destinations[1] );
 	}
 
 	public function test_sanitize_elementor_data__keeps_link_destination_for_unfiltered_user() {
@@ -252,6 +249,13 @@ class Test_Elementor_Post_Meta extends Elementor_Test_Base {
 		}
 
 		return wp_json_encode( $elements );
+	}
+
+	private function url_destination( string $url ): array {
+		return [
+			'$$type' => 'url',
+			'value' => $url,
+		];
 	}
 
 	private function destinations_from( array $elements ): array {

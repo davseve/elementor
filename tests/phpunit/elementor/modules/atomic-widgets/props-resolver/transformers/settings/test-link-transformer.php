@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 class Test_Link_Transformer extends Elementor_Test_Base {
 
-	private const ALLOWED_HTTP_DESTINATION = 'https://example.com/welcome';
+	private const ALLOWED_HTTP_DESTINATION = 'https://example.com/welcome?a=1&b=2';
 
 	private const ALLOWED_MAIL_DESTINATION = 'mailto:user@example.com';
 

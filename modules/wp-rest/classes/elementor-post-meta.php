@@ -3,6 +3,7 @@
 namespace Elementor\Modules\WpRest\Classes;
 
 use Elementor\Modules\AtomicWidgets\PropTypes\Link_Prop_Type;
+use Elementor\Modules\AtomicWidgets\PropTypes\Url_Prop_Type;
 use Elementor\Plugin;
 use Elementor\Utils;
 
@@ -107,8 +108,8 @@ class Elementor_Post_Meta {
 			return $data;
 		}
 
-		if ( isset( $data['$$type'], $data['value'] ) && 'link' === $data['$$type'] && is_array( $data['value'] ) && array_key_exists( 'destination', $data['value'] ) ) {
-			$data['value']['destination'] = Link_Prop_Type::sanitize_destination( $data['value']['destination'] );
+		if ( Link_Prop_Type::get_key() === ( $data['$$type'] ?? null ) && isset( $data['value']['destination'] ) ) {
+			$data['value']['destination'] = $this->sanitize_link_destination( $data['value']['destination'] );
 		}
 
 		foreach ( $data as $key => $item ) {
@@ -118,6 +119,18 @@ class Elementor_Post_Meta {
 		}
 
 		return $data;
+	}
+
+	private function sanitize_link_destination( $destination ) {
+		if ( is_string( $destination ) && ! is_numeric( $destination ) ) {
+			return esc_url_raw( $destination );
+		}
+
+		if ( Url_Prop_Type::get_key() === ( $destination['$$type'] ?? null ) && is_string( $destination['value'] ?? null ) ) {
+			return Url_Prop_Type::make()->sanitize( $destination );
+		}
+
+		return $destination;
 	}
 
 	private function register_page_settings_meta( string $post_type ): void {
