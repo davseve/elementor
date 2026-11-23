@@ -167,6 +167,43 @@ describe( 'useImportKit Hook', () => {
 		} );
 	} );
 
+	it( 'should store skipped plugins in runnersState', async () => {
+		// Arrange
+		const importedData = { session: 'abc', runners: [ 'plugins' ] };
+		const includes = [ 'plugins' ];
+		const data = { importedData, includes, uploadedData: { session: 'abc' } };
+		setupContext( {
+			isProcessing: true,
+			data,
+		} );
+		const hookParams = createHookParams( {
+			data,
+			includes,
+			isProcessing: true,
+		} );
+
+		mockFetch.mockResolvedValueOnce( {
+			ok: true,
+			json: jest.fn().mockResolvedValue( { data: { imported_data: importedData } } ),
+		} );
+
+		mockFetch.mockResolvedValueOnce( {
+			ok: true,
+			json: jest.fn().mockResolvedValue( { data: { imported_data: { plugins: [ 'Hello' ], plugins_skipped: [ 'Network Plugin' ] } } } ),
+		} );
+		// Act
+		const { result } = renderHook( () => useImportKit( hookParams ) );
+		// Assert
+		await waitFor( () => {
+			expect( result.current.status ).toBe( IMPORT_PROCESSING_STATUS.DONE );
+			expect( mockDispatch ).toHaveBeenCalledWith( {
+				type: 'SET_RUNNERS_STATE',
+				payload: { plugins: [ 'Hello' ], pluginsSkipped: [ 'Network Plugin' ] },
+			} );
+			expect( mockDispatch ).toHaveBeenCalledWith( { type: 'SET_IMPORT_STATUS', payload: 'COMPLETED' } );
+		} );
+	} );
+
 	it( 'should set error and stop runners on runner error', async () => {
 		// Arrange
 		const importedData = { session: 'abc', runners: [ 'plugin1', 'plugin2' ] };

@@ -279,6 +279,18 @@ class Site_Settings extends Import_Runner_Base {
 		switch_theme( $slug );
 	}
 
+	private function can_activate_theme( string $theme_slug ): bool {
+		if ( ! current_user_can( 'switch_themes' ) ) {
+			return false;
+		}
+
+		if ( ! is_multisite() || current_user_can( 'manage_network_themes' ) ) {
+			return true;
+		}
+
+		return wp_get_theme( $theme_slug )->is_allowed();
+	}
+
 	public function import_theme( array $data ) {
 		if ( empty( $data['site_settings']['theme'] ) ) {
 			return null;
@@ -307,12 +319,30 @@ class Site_Settings extends Import_Runner_Base {
 		}
 
 		try {
+			if ( ! $this->can_activate_theme( $theme_slug ) ) {
+				$result['failed'][ $theme_slug ] = sprintf(
+					/* translators: %s: Theme name. */
+					__( 'You do not have permission to activate theme: %s', 'elementor' ),
+					$theme_name
+				);
+				return $result;
+			}
+
 			if ( wp_get_theme( $theme_slug )->exists() ) {
 				$this->activate_theme( $theme_slug );
 				$this->activated_theme = $theme_slug;
 				$result['succeed'][ $theme_slug ] = sprintf(
 					/* translators: %s: Theme name. */
 					__( 'Theme: %s has already been installed and activated', 'elementor' ),
+					$theme_name
+				);
+				return $result;
+			}
+
+			if ( ! current_user_can( 'install_themes' ) ) {
+				$result['failed'][ $theme_slug ] = sprintf(
+					/* translators: %s: Theme name. */
+					__( 'You do not have permission to install theme: %s', 'elementor' ),
 					$theme_name
 				);
 				return $result;

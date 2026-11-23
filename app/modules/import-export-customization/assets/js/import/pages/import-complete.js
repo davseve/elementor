@@ -1,6 +1,6 @@
 import { useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from '@reach/router';
-import { Button, Stack, Box, Typography, Link } from '@elementor/ui';
+import { Alert, AlertTitle, Button, Stack, Box, Typography, Link } from '@elementor/ui';
 import { __ } from '@wordpress/i18n';
 import { BaseLayout, TopBar, Footer, PageHeader, CenteredContent, CompleteIcon, CompleteHeading, CompleteSummary } from '../../shared/components';
 import { useImportContext } from '../context/import-context';
@@ -128,7 +128,7 @@ export default function ImportComplete() {
 
 	const getPluginsSummary = useCallback( () => {
 		const plugins = Array.isArray( runnersState?.plugins ) ? runnersState?.plugins : Object.values( runnersState?.plugins || {} );
-		return runnersState?.plugins ? plugins.join( ' | ' ) : __( 'No plugins imported', 'elementor' );
+		return plugins.length ? plugins.join( ' | ' ) : __( 'No plugins imported', 'elementor' );
 	}, [ runnersState?.plugins ] );
 
 	const getSettingsSummary = useCallback( () => {
@@ -202,6 +202,8 @@ export default function ImportComplete() {
 		AppsEventTracking.sendPageViewsWebsiteTemplates( elementorCommon.eventsManager.config.secondaryLocations.kitLibrary.kitImportSummary );
 	}, [] );
 
+	const skippedPlugins = runnersState?.pluginsSkipped || [];
+
 	const kitSource = data?.kitUploadParams?.source || 'file';
 	const isFromKitsLibrary = 'kit-library' === kitSource;
 
@@ -243,6 +245,29 @@ export default function ImportComplete() {
 						summaryData={ summaryData }
 						testId="import-complete-summary"
 					/>
+
+					{ skippedPlugins.length > 0 && (
+						<Alert
+							severity="warning"
+							sx={ { width: '100%', textAlign: 'start', '& .MuiAlertTitle-root': { fontWeight: 'bold' } } }
+							data-testid="import-complete-skipped-plugins"
+						>
+							<Box>
+								<AlertTitle>{ __( 'Some plugins couldn’t be installed', 'elementor' ) }</AlertTitle>
+								<Typography variant="body2">
+									{ __( 'You don’t have permission to install or activate the following plugins:', 'elementor' ) }
+								</Typography>
+								<Box component="ul" sx={ { my: 1, paddingInlineStart: 2.5 } }>
+									{ skippedPlugins.map( ( pluginName ) => (
+										<Typography component="li" variant="body2" key={ pluginName }>{ pluginName }</Typography>
+									) ) }
+								</Box>
+								<Typography variant="body2">
+									{ __( 'Contact your site administrator to install or activate these plugins.', 'elementor' ) }
+								</Typography>
+							</Box>
+						</Alert>
+					) }
 
 					<Box mt={ 2 }>
 						<Stack direction="row" justifyContent="center" alignItems="center" spacing={ 3 }>

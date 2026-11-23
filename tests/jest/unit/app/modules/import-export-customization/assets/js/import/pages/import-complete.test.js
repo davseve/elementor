@@ -104,6 +104,36 @@ describe( 'ImportComplete Page', () => {
 		} ) );
 	} );
 
+	it( 'lists plugins that were not installed due to missing permissions', () => {
+		// Arrange
+		mockUseImportContext.mockReturnValue( {
+			isCompleted: true,
+			data: { includes: [ 'plugins' ] },
+			runnersState: {
+				plugins: [],
+				pluginsSkipped: [ 'WooCommerce', 'Network Plugin' ],
+			},
+		} );
+		// Act
+		render( <ImportComplete /> );
+		// Assert
+		const notice = screen.getByTestId( 'import-complete-skipped-plugins' );
+		const listedPlugins = Array.from( notice.querySelectorAll( 'li' ) ).map( ( item ) => item.textContent );
+		expect( listedPlugins ).toEqual( [ 'WooCommerce', 'Network Plugin' ] );
+		expect( notice.textContent ).toMatch( /Some plugins couldn’t be installed/ );
+		expect( notice.textContent ).toMatch( /You don’t have permission to install or activate the following plugins:/ );
+		expect( screen.getByText( 'No plugins imported' ) ).toBeTruthy();
+	} );
+
+	it( 'does not show the skipped plugins notice when all plugins were imported', () => {
+		// Arrange
+		setup( { isCompleted: true } );
+		// Act
+		render( <ImportComplete /> );
+		// Assert
+		expect( screen.queryByTestId( 'import-complete-skipped-plugins' ) ).toBeNull();
+	} );
+
 	describe( 'getContentSummary function', () => {
 		beforeEach( () => {
 			global.elementorAppConfig = {

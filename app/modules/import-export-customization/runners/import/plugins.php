@@ -5,6 +5,7 @@ namespace Elementor\App\Modules\ImportExportCustomization\Runners\Import;
 use Elementor\Core\Utils\Collection;
 use Elementor\Core\Utils\Plugins_Manager;
 use Elementor\Core\Utils\Str;
+use Elementor\Plugin;
 
 class Plugins extends Import_Runner_Base {
 
@@ -57,6 +58,35 @@ class Plugins extends Import_Runner_Base {
 				return $item;
 			} );
 
+		$installed_plugins = Plugin::$instance->wp->get_plugins()->keys()->all();
+
+		$skipped_plugins = $plugins_collection
+			->filter( function ( $item ) use ( $installed_plugins ) {
+				return ! $this->can_import_plugin( $item['plugin'], $installed_plugins );
+			} )
+			->map( function ( $item ) {
+				return $item['name'];
+			} )
+			->values();
+
+		$plugins_collection = $plugins_collection->filter( function ( $item ) use ( $installed_plugins ) {
+			return $this->can_import_plugin( $item['plugin'], $installed_plugins );
+		} );
+
+		$result['plugins'] = $this->install_and_activate( $plugins_collection );
+
+		if ( ! empty( $skipped_plugins ) ) {
+			$result['plugins_skipped'] = $skipped_plugins;
+		}
+
+		return $result;
+	}
+
+	private function install_and_activate( Collection $plugins_collection ): array {
+		if ( $plugins_collection->is_empty() ) {
+			return [];
+		}
+
 		$slugs = $plugins_collection
 			->map( function ( $item ) {
 				return $item['plugin'];
@@ -72,7 +102,7 @@ class Plugins extends Import_Runner_Base {
 		$installed = $this->plugins_manager->install( $slugs );
 		$activated = $this->plugins_manager->activate( $installed['succeeded'] );
 
-		$ordered_activated_plugins = $plugins_collection
+		return $plugins_collection
 			->filter( function ( $item ) use ( $activated ) {
 				return in_array( $item['plugin'], $activated['succeeded'], true );
 			} )
@@ -80,9 +110,21 @@ class Plugins extends Import_Runner_Base {
 				return $item['name'];
 			} )
 			->all();
+	}
 
-		$result['plugins'] = $ordered_activated_plugins;
+	private function can_import_plugin( string $slug, array $installed_plugins ): bool {
+		if ( ! in_array( $slug, $installed_plugins, true ) ) {
+			return current_user_can( 'install_plugins' ) && current_user_can( 'activate_plugins' );
+		}
 
-		return $result;
+		if ( Plugin::$instance->wp->is_plugin_active( $slug ) ) {
+			return true;
+		}
+
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return false;
+		}
+
+		return ! is_multisite() || current_user_can( 'manage_network_plugins' ) || ! is_network_only_plugin( $slug );
 	}
 }

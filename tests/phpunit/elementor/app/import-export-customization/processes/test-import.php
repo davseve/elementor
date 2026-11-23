@@ -11,7 +11,9 @@ use Elementor\App\Modules\ImportExportCustomization\Runners\Import\Wp_Content;
 use Elementor\App\Modules\ImportExportCustomization\Processes\Import;
 use Elementor\App\Modules\ImportExportCustomization\Utils as ImportExportCustomizationUtils;
 use Elementor\Core\Settings\Page\Manager as PageManager;
+use Elementor\Core\Utils\Collection;
 use Elementor\Core\Utils\Plugins_Manager;
+use Elementor\Core\Wp_Api;
 use Elementor\Plugin;
 use Elementor\Tests\Phpunit\Elementor\App\ImportExportCustomization\Test_Module;
 use ElementorEditorTesting\Elementor_Test_Base;
@@ -26,12 +28,41 @@ use ElementorEditorTesting\Elementor_Test_Base;
 class Test_Import extends Elementor_Test_Base {
 	const MOCK_KIT_ZIP_PATH = __DIR__ . '/../mock/sample-kit.zip';
 
+	private $original_wp_api;
+
+	public function tearDown(): void {
+		if ( $this->original_wp_api ) {
+			Plugin::$instance->wp = $this->original_wp_api;
+			$this->original_wp_api = null;
+		}
+
+		parent::tearDown();
+	}
+
+	private function mock_installed_plugins( array $installed_plugins, array $active_plugins = [] ): void {
+		$this->original_wp_api = Plugin::$instance->wp;
+
+		$wp_api_mock = $this->getMockBuilder( Wp_Api::class )
+			->onlyMethods( [ 'get_plugins', 'is_plugin_active' ] )
+			->getMock();
+
+		$wp_api_mock->method( 'get_plugins' )->willReturn( new Collection( array_map( function ( $name ) {
+			return [ 'Name' => $name ];
+		}, $installed_plugins ) ) );
+
+		$wp_api_mock->method( 'is_plugin_active' )->willReturnCallback( function ( $plugin ) use ( $active_plugins ) {
+			return in_array( $plugin, $active_plugins, true );
+		} );
+
+		Plugin::$instance->wp = $wp_api_mock;
+	}
+
 	// Test the import all process, which include all the kit content:
 	// The plugins, site-settings, taxonomies ( for Elementor and WP including CPT taxonomy - tests_tax ),
 	// Elementor content, WP content ( including CPTs - tests, sectests ).
 	public function test_run__import_all() {
 		// Arrange
-		$this->act_as_admin();
+		$this->act_as_admin_or_network_admin();
 		register_post_type( 'tests' );
 		register_post_type( 'sectests' );
 		register_taxonomy( 'tests_tax', [ 'tests' ], [] );
@@ -128,6 +159,8 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_plugins_all_plugins_by_default() {
 		// Arrange
+		$this->act_as_admin_or_network_admin();
+
 		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
 			->setMethods( [ 'install', 'activate' ] )
 			->getMock();
@@ -170,6 +203,8 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_plugins_selected_plugin() {
 		// Arrange
+		$this->act_as_admin_or_network_admin();
+
 		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
 			->setMethods( [ 'install', 'activate' ] )
 			->getMock();
@@ -214,7 +249,7 @@ class Test_Import extends Elementor_Test_Base {
 
 	public function test_run__import_site_settings() {
 		// Arrange
-		$this->act_as_admin();
+		$this->act_as_admin_or_network_admin();
 
 		$previous_active_theme = wp_get_theme();
 
@@ -287,6 +322,241 @@ class Test_Import extends Elementor_Test_Base {
 		$new_settings = $new_active_kit->get_meta( PageManager::META_KEY );
 		$this->assertEquals( $expected_custom_colors, $new_settings['custom_colors'] );
 		$this->assertEquals( $expected_custom_typography, $new_settings['custom_typography'] );
+	}
+
+	public function test_run__import_plugins_skips_plugins_the_user_cannot_activate() {
+		// Arrange
+		$this->act_as_editor();
+		$this->mock_installed_plugins( [
+			'elementor/elementor.php' => 'Elementor',
+			'elementor-pro/elementor-pro.php' => 'Elementor Pro',
+		] );
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->never() )->method( 'install' );
+		$plugins_manager_mock->expects( $this->never() )->method( 'activate' );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [ 'include' => [ 'plugins' ] ] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		// Act
+		$result = $import->run();
+
+		// Assert
+		$this->assertEmpty( $result['plugins'] );
+		$this->assertEquals( [ 'Elementor', 'Elementor Pro' ], $result['plugins_skipped'] );
+	}
+
+	public function test_run__import_plugins_keeps_already_active_plugins_without_activate_permission() {
+		// Arrange
+		$this->act_as_editor();
+		$this->mock_installed_plugins(
+			[ 'elementor/elementor.php' => 'Elementor' ],
+			[ 'elementor/elementor.php' ]
+		);
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->once() )
+			->method( 'install' )
+			->with( [ 'elementor/elementor.php' ] )
+			->willReturn( [ 'succeeded' => [ 'elementor/elementor.php' ] ] );
+
+		$plugins_manager_mock->expects( $this->once() )
+			->method( 'activate' )
+			->willReturn( [ 'succeeded' => [ 'elementor/elementor.php' ] ] );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [
+			'include' => [ 'plugins' ],
+			'plugins' => [
+				[
+					'name' => 'Elementor',
+					'plugin' => 'elementor/elementor',
+					'version' => '3.6.5',
+				],
+			],
+		] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		// Act
+		$result = $import->run();
+
+		// Assert
+		$this->assertEquals( [ 'Elementor' ], $result['plugins'] );
+		$this->assertArrayNotHasKey( 'plugins_skipped', $result );
+	}
+
+	public function test_run__import_plugins_skips_missing_plugins_without_install_permission() {
+		// Arrange
+		$this->act_as_admin();
+		$this->mock_installed_plugins( [] );
+
+		$deny_install_plugins = function ( $allcaps ) {
+			$allcaps['install_plugins'] = false;
+
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $deny_install_plugins );
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->never() )->method( 'install' );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [
+			'include' => [ 'plugins' ],
+			'plugins' => [
+				[
+					'name' => 'Not Installed Plugin',
+					'plugin' => 'not-installed-plugin/not-installed-plugin',
+					'version' => '1.0.0',
+				],
+			],
+		] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		// Act
+		$result = $import->run();
+
+		remove_filter( 'user_has_cap', $deny_install_plugins );
+
+		// Assert
+		$this->assertEmpty( $result['plugins'] );
+		$this->assertEquals( [ 'Not Installed Plugin' ], $result['plugins_skipped'] );
+	}
+
+	public function test_run__import_site_settings_does_not_install_theme_without_install_themes_capability() {
+		// Arrange
+		$this->act_as_admin();
+
+		$deny_install_themes = function ( $allcaps ) {
+			$allcaps['install_themes'] = false;
+
+			return $allcaps;
+		};
+		add_filter( 'user_has_cap', $deny_install_themes );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [ 'include' => [ 'settings' ] ] );
+
+		$theme_upgrader_mock = $this->getMockBuilder( \Theme_Upgrader::class )
+			->onlyMethods( [ 'install' ] )
+			->getMock();
+
+		$theme_upgrader_mock->expects( $this->never() )->method( 'install' );
+
+		$site_settings_runner = $this->getMockBuilder( Site_Settings::class )
+			->onlyMethods( [ 'get_theme_upgrader' ] )
+			->getMock();
+		$site_settings_runner->method( 'get_theme_upgrader' )->willReturn( $theme_upgrader_mock );
+
+		$import->register( $site_settings_runner );
+
+		// Act
+		$result = $import->run();
+
+		remove_filter( 'user_has_cap', $deny_install_themes );
+
+		// Assert
+		$this->assertCount( 1, $result['theme']['failed'] );
+		$this->assertArrayNotHasKey( 'succeed', $result['theme'] );
+	}
+
+	public function test_run__import_plugins_skips_network_wide_plugin_for_site_admin() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite not enabled' );
+		}
+
+		// Arrange
+		$this->act_as_admin();
+		update_site_option( 'menu_items', [ 'plugins' => '1' ] );
+
+		$plugin_file = 'network-wide-sample/network-wide-sample.php';
+		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_file;
+		wp_mkdir_p( dirname( $plugin_path ) );
+		file_put_contents( $plugin_path, "<?php\n/*\nPlugin Name: Network Wide Sample\nNetwork: true\n*/\n" );
+
+		$this->mock_installed_plugins( [ $plugin_file => 'Network Wide Sample' ] );
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->never() )->method( 'install' );
+		$plugins_manager_mock->expects( $this->never() )->method( 'activate' );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [
+			'include' => [ 'plugins' ],
+			'plugins' => [
+				[
+					'name' => 'Network Wide Sample',
+					'plugin' => 'network-wide-sample/network-wide-sample',
+					'version' => '1.0.0',
+				],
+			],
+		] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		try {
+			// Act
+			$result = $import->run();
+		} finally {
+			delete_site_option( 'menu_items' );
+			unlink( $plugin_path );
+			rmdir( dirname( $plugin_path ) );
+		}
+
+		// Assert
+		$this->assertEmpty( $result['plugins'] );
+		$this->assertEquals( [ 'Network Wide Sample' ], $result['plugins_skipped'] );
+	}
+
+	public function test_import_theme__does_not_activate_theme_not_enabled_for_site() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite not enabled' );
+		}
+
+		// Arrange
+		$this->act_as_admin();
+
+		$theme_slug = 'site-disabled-sample';
+		$theme_path = get_theme_root() . '/' . $theme_slug;
+		wp_mkdir_p( $theme_path );
+		file_put_contents( $theme_path . '/style.css', "/*\nTheme Name: Site Disabled Sample\nVersion: 1.0.0\n*/\n" );
+		file_put_contents( $theme_path . '/index.php', '<?php' );
+		wp_clean_themes_cache();
+
+		$site_settings_runner = $this->getMockBuilder( Site_Settings::class )
+			->onlyMethods( [ 'activate_theme' ] )
+			->getMock();
+		$site_settings_runner->expects( $this->never() )->method( 'activate_theme' );
+
+		try {
+			// Act
+			$result = $site_settings_runner->import_theme( [
+				'site_settings' => [
+					'theme' => [
+						'slug' => $theme_slug,
+						'name' => 'Site Disabled Sample',
+						'version' => '1.0.0',
+					],
+				],
+			] );
+		} finally {
+			unlink( $theme_path . '/style.css' );
+			unlink( $theme_path . '/index.php' );
+			rmdir( $theme_path );
+			wp_clean_themes_cache();
+		}
+
+		// Assert
+		$this->assertArrayHasKey( $theme_slug, $result['failed'] );
+		$this->assertArrayNotHasKey( 'succeed', $result );
 	}
 
 	public function test_run__import_templates_will_be_empty_without_the_pro() {
