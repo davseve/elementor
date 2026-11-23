@@ -247,9 +247,13 @@ export default function ImportComplete() {
 					/>
 
 					{ skippedPlugins.length > 0 && (
-						<Alert severity="warning" sx={ { width: '100%', textAlign: 'start' } } data-testid="import-complete-skipped-plugins">
+						<Alert
+							severity="warning"
+							sx={ { width: '100%', textAlign: 'start', '& .MuiAlertTitle-root': { fontWeight: 'bold' } } }
+							data-testid="import-complete-skipped-plugins"
+						>
 							<Box>
-								<AlertTitle sx={ { fontWeight: 'bold' } }>{ __( 'Some plugins couldn’t be installed', 'elementor' ) }</AlertTitle>
+								<AlertTitle>{ __( 'Some plugins couldn’t be installed', 'elementor' ) }</AlertTitle>
 								<Typography variant="body2">
 									{ __( 'You don’t have permission to install or activate the following plugins:', 'elementor' ) }
 								</Typography>
