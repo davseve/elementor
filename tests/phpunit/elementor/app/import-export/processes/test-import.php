@@ -11,7 +11,9 @@ use Elementor\App\Modules\ImportExport\Runners\Import\Wp_Content;
 use Elementor\App\Modules\ImportExport\Processes\Import;
 use Elementor\App\Modules\ImportExport\Utils as ImportExportUtils;
 use Elementor\Core\Settings\Page\Manager as PageManager;
+use Elementor\Core\Utils\Collection;
 use Elementor\Core\Utils\Plugins_Manager;
+use Elementor\Core\Wp_Api;
 use Elementor\Plugin;
 use Elementor\Tests\Phpunit\Elementor\App\ImportExport\Test_Module;
 use ElementorEditorTesting\Elementor_Test_Base;
@@ -296,6 +298,106 @@ class Test_Import extends Elementor_Test_Base {
 		$new_settings = $new_active_kit->get_meta( PageManager::META_KEY );
 		$this->assertEquals( $expected_custom_colors, $new_settings['custom_colors'] );
 		$this->assertEquals( $expected_custom_typography, $new_settings['custom_typography'] );
+	}
+
+	public function test_run__import_plugins_throws_when_site_admin_imports_network_wide_plugin() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite not enabled' );
+		}
+
+		// Arrange
+		$this->act_as_admin();
+		update_site_option( 'menu_items', [ 'plugins' => '1' ] );
+
+		$plugin_file = 'network-wide-sample/network-wide-sample.php';
+		$plugin_path = WP_PLUGIN_DIR . '/' . $plugin_file;
+		wp_mkdir_p( dirname( $plugin_path ) );
+		file_put_contents( $plugin_path, "<?php\n/*\nPlugin Name: Network Wide Sample\nNetwork: true\n*/\n" );
+
+		$original_wp_api = Plugin::$instance->wp;
+		$wp_api_mock = $this->getMockBuilder( Wp_Api::class )
+			->onlyMethods( [ 'get_plugins' ] )
+			->getMock();
+		$wp_api_mock->method( 'get_plugins' )->willReturn( new Collection( [
+			$plugin_file => [ 'Name' => 'Network Wide Sample' ],
+		] ) );
+		Plugin::$instance->wp = $wp_api_mock;
+
+		$plugins_manager_mock = $this->getMockBuilder( Plugins_Manager::class )
+			->setMethods( [ 'install', 'activate' ] )
+			->getMock();
+
+		$plugins_manager_mock->expects( $this->never() )->method( 'install' );
+		$plugins_manager_mock->expects( $this->never() )->method( 'activate' );
+
+		$import = new Import( static::MOCK_KIT_ZIP_PATH, [
+			'include' => [ 'plugins' ],
+			'plugins' => [
+				[
+					'name' => 'Network Wide Sample',
+					'plugin' => 'network-wide-sample/network-wide-sample',
+					'version' => '1.0.0',
+				],
+			],
+		] );
+		$import->register( new Plugins( $plugins_manager_mock ) );
+
+		// Expect
+		$this->expectException( \Error::class );
+		$this->expectExceptionMessage( Module::PLUGIN_PERMISSIONS_ERROR_KEY );
+
+		try {
+			// Act
+			$import->run();
+		} finally {
+			Plugin::$instance->wp = $original_wp_api;
+			delete_site_option( 'menu_items' );
+			unlink( $plugin_path );
+			rmdir( dirname( $plugin_path ) );
+		}
+	}
+
+	public function test_import_theme__does_not_activate_theme_not_enabled_for_site() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Multisite not enabled' );
+		}
+
+		// Arrange
+		$this->act_as_admin();
+
+		$theme_slug = 'site-disabled-sample';
+		$theme_path = get_theme_root() . '/' . $theme_slug;
+		wp_mkdir_p( $theme_path );
+		file_put_contents( $theme_path . '/style.css', "/*\nTheme Name: Site Disabled Sample\nVersion: 1.0.0\n*/\n" );
+		file_put_contents( $theme_path . '/index.php', '<?php' );
+		wp_clean_themes_cache();
+
+		$site_settings_runner = $this->getMockBuilder( Site_Settings::class )
+			->onlyMethods( [ 'activate_theme' ] )
+			->getMock();
+		$site_settings_runner->expects( $this->never() )->method( 'activate_theme' );
+
+		try {
+			// Act
+			$result = $site_settings_runner->import_theme( [
+				'site_settings' => [
+					'theme' => [
+						'slug' => $theme_slug,
+						'name' => 'Site Disabled Sample',
+						'version' => '1.0.0',
+					],
+				],
+			] );
+		} finally {
+			unlink( $theme_path . '/style.css' );
+			unlink( $theme_path . '/index.php' );
+			rmdir( $theme_path );
+			wp_clean_themes_cache();
+		}
+
+		// Assert
+		$this->assertArrayHasKey( $theme_slug, $result['failed'] );
+		$this->assertArrayNotHasKey( 'succeed', $result );
 	}
 
 	public function test_run__import_templates_will_be_empty_without_the_pro() {

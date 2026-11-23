@@ -79,7 +79,7 @@ export default function ImportProcess() {
 									</Typography>
 								</Stack>
 							</Stack>
-							<PluginActivation plugins={ runnersState?.plugins } />
+							<PluginActivation plugins={ runnersState?.plugins } skippedPlugins={ runnersState?.pluginsSkipped } />
 						</>
 					) }
 

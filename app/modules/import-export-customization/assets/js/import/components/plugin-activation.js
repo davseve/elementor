@@ -4,11 +4,15 @@ import { __ } from '@wordpress/i18n';
 import { useImportContext } from '../context/import-context';
 import PluginStatusItem from './plugin-status-item';
 
-export function PluginActivation( { plugins } ) {
+export function PluginActivation( { plugins, skippedPlugins = [] } ) {
 	const { data } = useImportContext();
 
 	const pluginsToActivate = data.uploadedData?.manifest?.plugins
 		?.filter( ( plugin ) => {
+			if ( skippedPlugins.includes( plugin.name ) ) {
+				return false;
+			}
+
 			if ( data?.customization?.plugins ) {
 				return true === data.customization.plugins[ plugin.plugin ];
 			}
@@ -63,4 +67,5 @@ export function PluginActivation( { plugins } ) {
 
 PluginActivation.propTypes = {
 	plugins: PropTypes.arrayOf( PropTypes.string ),
+	skippedPlugins: PropTypes.arrayOf( PropTypes.string ),
 };

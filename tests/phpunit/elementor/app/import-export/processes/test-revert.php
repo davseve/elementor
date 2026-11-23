@@ -21,6 +21,7 @@ class Test_Revert extends Elementor_Test_Base {
 
 	public function test_run__revert_all_one_imported_only() {
 		// Arrange
+		$this->act_as_admin_or_network_admin();
 		register_post_type( 'tests' );
 		register_post_type( 'sectests' );
 		register_taxonomy( 'tests_tax', [ 'tests' ], [] );

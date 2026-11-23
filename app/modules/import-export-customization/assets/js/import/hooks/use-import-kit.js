@@ -59,8 +59,15 @@ export function useImportKit( { data, includes, customization, isProcessing, dis
 				} );
 
 				const runnerKey = 'elementor-content' === runner ? 'content' : runner;
+				const pluginsSkipped = result.data.imported_data?.plugins_skipped || result.data.plugins_skipped;
 
-				dispatch( { type: 'SET_RUNNERS_STATE', payload: { [ runnerKey ]: result.data.imported_data?.[ runnerKey ] || result.data[ runnerKey ] } } );
+				dispatch( {
+					type: 'SET_RUNNERS_STATE',
+					payload: {
+						[ runnerKey ]: result.data.imported_data?.[ runnerKey ] || result.data[ runnerKey ],
+						...( pluginsSkipped && { pluginsSkipped } ),
+					},
+				} );
 			} catch ( e ) {
 				stopIterations = e;
 				setError( e );

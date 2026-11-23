@@ -83,5 +83,23 @@ class Plugins extends Import_Runner_Base {
 		if ( $has_plugins_to_install && ! current_user_can( 'install_plugins' ) ) {
 			throw new \Error( Module::PLUGIN_PERMISSIONS_ERROR_KEY ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
 		}
+
+		if ( $this->has_network_only_plugins( array_intersect( $slugs, $installed_plugins ) ) ) {
+			throw new \Error( Module::PLUGIN_PERMISSIONS_ERROR_KEY ); // phpcs:ignore WordPress.Security.EscapeOutput.ExceptionNotEscaped
+		}
+	}
+
+	private function has_network_only_plugins( array $installed_slugs ): bool {
+		if ( ! is_multisite() || current_user_can( 'manage_network_plugins' ) ) {
+			return false;
+		}
+
+		foreach ( $installed_slugs as $slug ) {
+			if ( is_network_only_plugin( $slug ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 }
